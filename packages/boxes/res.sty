@@ -1,0 +1,192 @@
+
+% ------------------------- Label -----------------------------
+
+\newtcbox{\reslabeltag}{%
+    enhanced,
+    on line,
+    % baseline=(content.center),  
+    % tcbox raise=0.2ex
+    boxrule=0.3pt,
+    top=1pt,
+    bottom=0pt,
+    left=4pt,
+    right=4pt,
+    arc=1pt,
+    colback=white,
+    fontupper=\ttfamily,
+    coltext=cyan,
+}
+
+\newtcbox{\resmarksmall}{enhanced,
+    on line,
+    boxrule=0.3pt,
+    top=0.2pt,
+    bottom=0.2pt,
+    left=0.2pt,
+    right=0.2pt,
+    arc=1pt,
+    colback=white,
+    fontupper=\footnotesize\ttfamily,
+    enlarge by=0.1mm,
+    coltext=cyan!70!black
+}
+
+
+\newtcbox{\resmark}{on line,
+    colback=white,
+    enhanced,
+    frame hidden,
+    boxrule=0pt,
+    arc=0pt,outer arc=0pt,
+    borderline south={0.35mm}{0.25mm}{cyan!50!white},
+    boxsep=2pt,left=0pt,right=0pt,top=2pt,bottom=2pt,
+}
+
+\newtcbox{\restitle}{
+    enhanced,
+    colback=cyan!70!white!80!black,
+    on line,
+    leftrule=0pt,
+    rightrule=0pt,
+    top=1pt,
+    bottom=1pt,
+    left=0pt,
+    right=1pt,
+    colupper=white,
+    arc=0pt,
+    frame hidden
+}
+
+
+
+% ------------------------- Ref----------------------------------
+
+\newtcbox{\refresNoLink}{%
+    enhanced,
+    on line,
+    nobeforeafter,
+    tcbox raise base,
+    boxrule=0.4pt,
+    top=0mm,
+    bottom=0mm,
+    right=0mm,
+    left=4mm,
+    arc=1pt,
+    boxsep=4pt,
+    before upper={\vphantom{X}}, % keeps height stable
+    colframe=cyan!50!black,
+    coltext=cyan!25!black,
+    colback=cyan!10!white,
+    fontupper=\scriptsize\ttfamily,
+    overlay={
+            \begin{tcbclipinterior}
+                \fill[cyan!75!green!90!black]
+                (frame.south west)
+                rectangle
+                ([xshift=4mm]frame.north west);
+                \node[
+                    text=white,
+                    font=\sffamily\bfseries\tiny,
+                    rotate=90,
+                    anchor=center
+                ]
+                at ([xshift=2mm]frame.west) {RES};
+            \end{tcbclipinterior}
+        }
+}
+
+
+% ------------------------- Actual TCOLORBOX --------------------
+
+\NewTColorBox{resultbox}{O{} m O{}}{
+    enhanced,
+    skin=enhancedmiddle,
+    breakable,
+    frame hidden,
+    boxed title style={
+            enhanced,
+            % size=small,
+            frame hidden,
+            left=1pt,
+            right=1pt,
+            top=0pt,
+            bottom=0pt,
+            boxsep=0mm,
+            opacityframe=0,
+            opacityback=0,
+            % colback=green!70!black,
+            % leftrule=0pt,
+            % rightrule=0pt,
+        },
+    attach boxed title to top left={xshift=1cm,yshift*=3.3mm-\tcboxedtitleheight},
+    colback=white,
+    leftrule=0pt,
+    rightrule=0.3pt,
+    top=2mm,
+    bottom=1em,
+    boxsep=0mm,
+    borderline north={0.25mm}{0mm}{cyan!10!white},
+    borderline south={0.25mm}{0mm}{cyan!10!white},
+    borderline west={0.75mm}{0mm}{cyan},
+    borderline west={0.75mm}{0.75mm}{cyan!50!white},
+    borderline east={0.75mm}{0mm}{cyan!25!white},
+    title={\restitle{\textbf{Result:} #2}},
+    after title={%
+            \IfBlankTF{#3}{}{%
+                \hspace{2em}\hyperref[res:#3]{\reslabeltag{#3}}%
+            }
+        },
+    #1
+}
+
+\NewTColorBox{miniresultbox}{O{} m O{}}{
+    enhanced,
+    skin=enhancedmiddle,
+    breakable,
+    frame hidden,
+    top=2mm,
+    bottom=1em,
+    boxsep=0mm,
+    colback=white,
+    borderline north={0.25mm}{0mm}{cyan!20!white, dotted},
+    borderline south={0.25mm}{0mm}{cyan!20!white, dotted},
+    borderline west={0.75mm}{0mm}{cyan!50!white, dotted},
+    borderline east={0.75mm}{0mm}{cyan!15!white},
+    title={\resmark{#2}:\ },
+    coltitle=cyan!70!black,
+    after title={\IfBlankTF{#3}{\;}{\hfill\hyperref[res:#3]{\resmarksmall{#3}}}},
+    attach title to upper,
+    #1
+}
+
+
+
+
+
+
+
+
+% ------------------------- Final interface --------------------
+
+\NewDocumentEnvironment{resB}{O{} m +b}{%
+    \IfNoValueTF{#1}{}{%
+        \label{res:#1}%
+    }%
+    \begin{resultbox}[]{#2}[#1]
+        #3
+    \end{resultbox}
+}{}
+
+\NewDocumentEnvironment{resb}{O{} m +b}{%
+    \vspace{1mm}
+    \IfNoValueTF{#1}{}{%
+        \label{exp:#1}%
+    }
+    \begin{miniresultbox}[]{#2}[#1]
+        #3
+    \end{miniresultbox}
+    \vspace{1mm}
+}{}
+
+
+\newcommand{\refres}[1]{\hyperref[res:#1]{\refresNoLink{#1}}}

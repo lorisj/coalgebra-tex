@@ -1,0 +1,1113 @@
+\documentclass{article}
+\usepackage{packages/notespkg}
+\addbibresource{refs.bib}
+
+
+
+
+\title{Coalgebra, Categories, Automota, and MDPs}
+\author{lorisj }
+\date{May 2025}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+The main goal of these notes is to explore new ideas in the intersection of:
+\begin{itemize}
+    \item Category theory/coalgebra
+    \item MDPs (Markov Decision Processes)
+    \item LDBA (Limit Deterministic Buchi Automota),
+    \item Bisimulation and bisimulation metrics
+\end{itemize}
+
+and also serve as a reference for some results/definitions in these areas.
+
+
+\section{Notation}
+\begin{defB}{Notation Used}
+    These are default notations that are used unless otherwise noted:
+    \begin{itemize}
+        \item TFDC $\eqdef$ The following diagram(s) commute(s).
+        \item s.t. $\eqdef$ such that
+        \item $A^B \eqdef \{f : B \to A\}$ for sets $A,B$.
+        \item $2^A = \mathcal P[A]$ (powerset of $A$) for set $A$, note that this means the powerset can be interpreted as the set of functions from $A \to 2$.
+        \item $\omega\eqdef \{\text{natural numbers including 0} \} =\{0,1,2,\ldots \}$.
+        \item  $\forall_{v}^V, \exists_v^V \eqdef \forall_{v \in V}, \exists_{v \in V}$, where the superscript refers to the set being quantified over (domain) and the subscript denotes the variable bound by the quantifier.
+        \item $f[X], f^{-1}[X]\eqdef$ image, preimage for a set $X$ under function $f$ (in contrast $f(x),f^{-1}(x)$ denote element application)
+        \item $(\cdot)$ denotes a unique free variable (i.e. $(\cdot) +2$ is the function that takes in a variable and adds 2)
+        \item $\Delta X$ \refdef{distribution-functor}
+    \end{itemize}
+\end{defB}
+
+
+\newpage
+\section{Category Theory}
+
+\subsection{Categories}
+Intuitively, a category can be thought of as a more structured graph, where you can compose edges. Specifically, a category is a directed multigraph, and also there is a composition operation, as well as an identity. The nodes are called Objects, and the edges are called arrows (or morphisms). Essentially a category will look something like this:
+\begin{center}
+    % https://tikzcd.yichuanshen.de/#N4Igdg9gJgpgziAXAbVABwnAlgFyxMJZABgBpiBdUkANwEMAbAVxiRAEEQBfU9TXfIRQBGclVqMWbAELdeIDNjwEiogEzj6zVohAAROXyWCiAZjHUtU3QGFu4mFADm8IqABmAJwgBbJGuocCCRhHg9vP0RRECCkYjCQL19-QODEMhAGLDAdEDgILKhDRIi41LLMiAg0IjUAdjJ3RjgYcQY6ACMYBgAFfmUhEE8sJwALHGKkyOjYqOoGKpqUAE5G5tb5zu6+4xVdBhh3CYSplJi0gMrqojWGFrat3v6TXWGx4-lTxHNzpB+F64oW73TZdJ67QZvcaTUrfcpwq5LZCrUhNO4bTKPHYCPZDEbQk6wy6zDJdMBFRAANniFC4QA
+    \begin{tikzcd}
+        A \arrow[loop, distance=2em, in=215, out=145] & B \arrow[l] \arrow[loop, distance=2em, in=35, out=325]                                         &  & C \arrow[loop, distance=2em, in=305, out=235] \arrow[loop, distance=2em, in=35, out=325] \\
+        &                                                                                                &  &                                                                                          \\
+        & D \arrow[uu] \arrow[luu] \arrow[loop, distance=2em, in=305, out=235] \arrow[luu, bend left=60] &  &
+    \end{tikzcd}
+\end{center}
+
+The important notes are that:
+\begin{enumerate}
+    \item You can have multiple arrows between two nodes that are not equal
+    \item If I have two arrows: $f: A \to B, g:B \to C$, then there must exist some arrow $g \circ f : A \to C$.
+    \item There exists at least one self loop for each object, called the identity, $\text{id}_c : C \to C$ such that its composition with any other object does not change it.
+\end{enumerate}
+
+
+
+
+More formally:
+\begin{defB}[category]{Category}
+    A category $C$ consists of:
+    \begin{itemize}
+        \item $\textbf{Obj}(C)$: A class of objects
+        \item $\Hom(C)$: A class of morphisms (sometimes called arrows)
+        \item $ \circ$: A class function $: \Hom(C) \times \Hom(C) \to \Hom(C)$
+    \end{itemize}
+    Such that:
+
+    \begin{enumerate}
+        \item Each morphism has a \emph{domain} and \emph{codomain}:
+
+              For every $f \in \Hom(C)$ there must be two objects, a \emph{domain} and \emph{codomain}, both in $\mathbf{Obj}(C)$.
+
+
+              As notation, $f:X\to Y$ denotes a morphism with domain $X$, codomain $Y$, and $\Hom (X,Y)$ for objects $X,Y$ denotes the class of all morphisms with domain $X$, codomain $Y$.
+
+        \item Composition is \emph{type-respecting}:
+
+              If $f: X \to Y$ and $g: Y \to Z$, then the composite $g \circ f$ must exist in $\Hom C$, and must be of type: $g \circ f : X \to Z$.
+
+        \item Composition is \emph{associative}:
+
+              For morphisms $f: W \to X$, $g: X \to Y$, and $h: Y \to Z$:
+              \begin{align}
+                  (h \circ g) \circ f \;=\; h \circ (g \circ f)
+              \end{align}
+
+        \item \emph{Identity morphisms} exist:
+
+
+              Every $X \in \Obj(C)$ has a \emph{identity} (or \emph{unit}) morphism $\mathrm{id}_X : X \to X$ such that for every morphism $f: X \to Y$ and $g: Z \to X$:
+              \begin{align}
+                  \mathrm{id}_Y \circ f \;=\; f \\
+                  f \circ \mathrm{id}_X \;=\; f
+              \end{align}
+    \end{enumerate}
+\end{defB}
+
+This definition is very abstract, so the following examples should make the idea more concrete.
+
+
+\begin{expB}{Common categories}
+    Here are some common categories: (See \refdef{category})
+    \begin{defb}[catset]{$\catset$, the category of sets}
+        \begin{itemize}
+            \item $\Obj$: All sets.
+            \item $\Hom$: All functions between sets.
+            \item $\circ$: Normal function composition.
+            \item $\id_X$: The identity function on a set $X$.
+        \end{itemize}
+    \end{defb}
+    \begin{defb}[catrel]{$\catrel$, the category of relations}
+        \begin{itemize}
+            \item $\Obj$: All sets.
+            \item $\Hom$: A morphism $R : X \to Y$ is a binary relation $R \subseteq X \times Y$.
+            \item $\circ$ :  For $R : X \to Y$ and $S : Y \to Z$, their composite $S \circ R : X \to Z$ is given by:
+                  $$
+                      (x,z) \in (S \circ R) \quad \text{iff} \quad \exists\, y \in Y \text{ such that } (x,y)\in R \text{ and } (y,z)\in S.
+                  $$
+            \item $\id_X$:  For each set $X$, $\mathrm{id}_X = \{(x,x) : x \in X\}$, i.e.\ the diagonal relation.
+        \end{itemize}
+    \end{defb}
+    \begin{defb}[cattypes]{$\cattyp$, the category of types}
+        \begin{itemize}
+            \item $\Obj$ : Types in a given type theory or programming language.
+
+                  (think \texttt{string}, \texttt{int}, \texttt{double}, \texttt{string[]})
+            \item $\Hom$ :  Pure functions (i.e. programs with no side effects) from the input type to the output type (think $\text{length} : \text{string} \to \text{number}$). Note only pure functions are allowed, so something that has side effects would not work.
+            \item $\circ$ : Composition of functions.
+            \item $\id_X$ : Identity function on type $X$.
+        \end{itemize}
+    \end{defb}
+
+    \begin{defb}[catgroup]{$\catgrp$, the category of groups}
+        \begin{itemize}
+            \item $\Obj$: All groups.
+            \item $\Hom$: Group homomorphisms. Formally, a morphism between groups $f : (G,\cdot^G) \to (H, \cdot^H)$ respects the group operation: $f(g_1 \cdot^G g_2) = f(g_1)\cdot^H f(g_2)$.
+            \item $\circ$ : Composition is the usual function composition of homomorphisms.
+            \item $\id_{(G,\cdot)}$: The identity on a group $(G,\cdot)$ is the identity homomorphism $\mathrm{id}_G$ which sends each $g \in G$ to itself.
+        \end{itemize}
+    \end{defb}
+
+    The following example shows that morphisms on a category need not reduce to relations on the class of objects:
+
+    \begin{defb}{Category of Dimensions of Linear maps}
+        \begin{itemize}
+            \item $\Obj$: The natural numbers $\omega$.
+            \item $\Hom$: A morphism $R : n \to m$ is a $n\times m$ matrix $\in \R^{n \times m}$.
+            \item $\circ$: matrix multiplication.
+            \item $\id_n$: For $n \in \omega$, $\id_n$ is simply the $n \times n$ identity matrix.
+        \end{itemize}
+    \end{defb}
+\end{expB}
+
+\subsection{Basic Categorical Structures }
+Here are some basic categorical structures that we will use, and these should give some intuition as to what a categorical definition looks like.
+
+
+\subsubsection{Span and Cospan}
+Maybe the easiest objects to define.
+
+\begin{defB}[span-cospan]{Span and cospan}
+    For a category $C$:
+    \begin{defb}[span]{Span}
+
+        A span consists of a diagram of the form:
+        % https://q.uiver.app/#q=WzAsMyxbMSwwLCJCIl0sWzAsMCwiQSJdLFsyLDAsIkMiXSxbMCwxLCJmIiwyXSxbMCwyLCJnIl1d
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                A \& B \& C
+                \arrow["f"', from=1-2, to=1-1]
+                \arrow["g", from=1-2, to=1-3]
+            \end{tikzcd}\]
+    \end{defb}
+    \begin{defb}[cospan]{Cospan}
+
+        A cospan consists of a diagram of the form:
+        % https://q.uiver.app/#q=WzAsMyxbMSwwLCJCIl0sWzAsMCwiQSJdLFsyLDAsIkMiXSxbMSwwLCJmIl0sWzIsMCwiZyIsMl1d
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                A \& B \& C
+                \arrow["f", from=1-1, to=1-2]
+                \arrow["g"', from=1-3, to=1-2]
+            \end{tikzcd}\]
+
+    \end{defb}
+
+\end{defB}
+
+
+\subsubsection{Monoid}
+If we look at a category, sometimes we can see an isolated object, i.e. something that looks like this:
+% https://q.uiver.app/#q=WzAsMSxbMCwwLCJBIl0sWzAsMCwiZyJdLFswLDAsImYiLDAseyJhbmdsZSI6LTQ1fV0sWzAsMCwiayIsMCx7ImFuZ2xlIjotOTB9XV0=
+\[\begin{tikzcd}
+        A
+        \arrow["g", from=1-1, to=1-1, loop, in=55, out=125, distance=10mm]
+        \arrow["f", from=1-1, to=1-1, loop, in=100, out=170, distance=10mm]
+        \arrow["k", from=1-1, to=1-1, loop, in=145, out=215, distance=10mm]
+    \end{tikzcd}\]
+
+where there are no arrows going from $A$ outside of $A$. This is called a monoid. More formally:
+\begin{defB}[monoid]{Monoid}
+    A monoid in a category $C$ is an object $M$ such that every morphism $f$ with domain $M$ must also have codomain $M$.
+\end{defB}
+Recall the traditional definition of a monoid consists of:
+\begin{defb}{Set theoretic monoid}
+    A monoid $(M,+,e)$ is a set $M$, function $+: M\times M \to M$, element $e \in M$ s.t.:
+    \begin{enumerate}
+        \item $+$ is associative
+        \item For all $m \in M$:
+              $e + m = m + e = m$
+    \end{enumerate}
+\end{defb}
+
+\begin{resb}{Category Theory Monoid is Set Monoid}
+    Let $* \in \Obj (C)$ be a monoid. Then $(\Hom (*, *) , \circ)$ is a set theoretic monoid. (recall $\circ$ is the composition operator of $C$)
+
+    \begin{proof}
+        Associativity and the existence of identity follow immediatly from the category theory axioms.
+    \end{proof}
+\end{resb}
+
+\subsubsection{Isomorphism and Isomorphic objects}
+
+An isomorphism generalizes the idea of a bijection. Namely:
+\begin{defB}[isomorphism]{Isomorphism}
+    For a category $C$, an isomorphism is any morphism $f: X \to Y$ such that there exists another morphism $f^{-1} : Y \to X$ such that $ f^{-1} \circ f = \id_X $, and $f \circ f^{-1} = \id_Y$. As a diagram:
+    % https://q.uiver.app/#q=WzAsMixbMCwwLCJYIl0sWzEsMCwiWSJdLFswLDEsImYiLDAseyJjdXJ2ZSI6LTF9XSxbMSwwLCJmXnstMX0iLDAseyJjdXJ2ZSI6LTF9XV0=
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            X \& Y
+            \arrow["f", curve={height=-6pt}, from=1-1, to=1-2]
+            \arrow["{f^{-1}}", curve={height=-6pt}, from=1-2, to=1-1]
+        \end{tikzcd}\]
+\end{defB}
+We can transfer this definition from morphisms to objects:
+\begin{defB}[isomorphic]{Isomorphic objects}
+    In a category $C$, objects $X,Y \in C$ are isomorphic (denoted $X\cong Y$) if there exists some isomorphism $f: X \to Y$.
+\end{defB}
+
+\begin{expb}{Isomorphisms/Isomorphic objects}
+    \begin{itemize}
+        \item In $\catset$, isomorphisms are exactly bijective functions, and two sets are isomorphic iff they have the same cardinality.
+        \item In $\catgrp$, isomorphims are group homomorphisms that are invertible, i.e. group isomorphisms.
+    \end{itemize}
+\end{expb}
+
+Many categorical definitions are only unique up to isomorphism, meaning that any two objects that satisfy the condition must be isomorphic. For example see \refres{terminal-unique}.
+
+
+
+\subsubsection{Initial and Terminal/Final Objects}
+
+\begin{defB}[initial-obj]{Initial Object}
+    An object $* \in \Obj (C)$ for some category $C$ is called initial if for any other object $X \in \Obj (C)$, there is a unique morphism $! : * \to X$.
+\end{defB}
+
+\begin{defB}[terminal-obj]{Terminal/Final Object}
+    An object $* \in \Obj (C)$ for some category $C$ is called terminal (aka final) if for any other object $X \in \Obj (C)$, there is a unique morphism $! : X \to *$.
+\end{defB}
+
+\begin{expB}{Initial/Terminal Objects}
+
+    \begin{expb}{Initial for $\catset$}
+        Note that if we look at $\catset$, the set with a single element (usually denoted $1 = \{0\} = \{\emptyset\}$) is terminal. (For any other set, there is a unique map that just sends everything to $0$)
+    \end{expb}
+    \begin{expb}{Terminal for $\catset$}
+        By convention, we assume that there is a unique function from any set to the emptyset. This means that the empty set (aka $0$) is the terminal object in $\catset$.
+    \end{expb}
+    \begin{expb}{Terminal for $\catgrp$}
+        Note that the trivial group $(\{0\}, +, 0)$ is terminal in $\catgrp$. Namely for any other group $(G,+,0)$ there is only one homomorphism to the trivial group, namely the one that sends everything to the identity.
+    \end{expb}
+\end{expB}
+
+
+\begin{resB}[terminal-unique]{Terminal Objects are Unique up to Isomorphism}
+    Let $*_0, *_1$ both be terminal objects of a category $C$. Then $*_0 \cong *_1$.
+    \dline
+    \begin{proof}
+        Because $*_0$ is terminal, there must be some (unique) $!_0: *_1 \to *_0$. Likewise because $*_1$ is terminal, there must be some (unique) $!_1: *_0 \to *_1$. So notice that $!_0 \circ !_1 : *_0 \to *_0$, so by finality of $*_0$ the identity map is the unique morphism $: *_0 \to *_0$, so $!_0 \circ !_1 = \id_{*_0}$. The same argument holds for $!_1 \circ !_0 = \id_{*_1}$. Thus by \refdef{isomorphism} $!_0$ is an isomorphism, and so $*_0 \cong *_1$.
+    \end{proof}
+\end{resB}
+Note that the same is true for initial objects. This means that we can say \textbf{the} [initial/terminal] object instead of \textbf{an/a} [initial/terminal] object.
+
+
+\subsubsection{Product and Coproduct}
+
+\begin{defB}[product]{Product}
+    Let $A, B \in \Obj (C)$ for some category $C$. A product consists of:
+    \begin{itemize}
+        \item An object $A\times B \in \Obj(C)$
+        \item A morphism $\pi_A : A \times B \to A$
+        \item A morphism $\pi_B : A \times B \to B$
+    \end{itemize}
+    s.t. for any other span between $A$ and $B$: $A \lfrom{f} Q \lto{g} B$ $ \left(\refdef{span}\right)$  we have that there exists a unique map $r_Q:Q \to A \times B$ s.t. TFDC:
+    % https://q.uiver.app/#q=WzAsNCxbMSwxLCJRIl0sWzEsMCwiQSBcXHRpbWVzIEIiXSxbMCwxLCJBIl0sWzIsMSwiQiJdLFswLDEsIlxcZXhpc3RzIXJfUSIsMCx7InN0eWxlIjp7ImJvZHkiOnsibmFtZSI6ImRhc2hlZCJ9fX1dLFswLDIsImYiXSxbMCwzLCJnIiwyXSxbMSwyLCJcXHBpX0EiLDIseyJjdXJ2ZSI6Mn1dLFsxLDMsIlxccGlfQiIsMCx7ImN1cnZlIjotMn1dXQ==
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            \& {A \times B} \\
+            A \& Q \& B
+            \arrow["{\pi_A}"', curve={height=12pt}, from=1-2, to=2-1]
+            \arrow["{\pi_B}", curve={height=-12pt}, from=1-2, to=2-3]
+            \arrow["{\exists!r_Q}", dashed, from=2-2, to=1-2]
+            \arrow["f", from=2-2, to=2-1]
+            \arrow["g"', from=2-2, to=2-3]
+        \end{tikzcd}\]
+\end{defB}
+
+Intuitively, this means that if I know a product exists, and I have some span $A \lfrom{f} Q \lto{g} B$, we have that $f = \pi_A \circ r_Q$, and $g = \pi_B \circ r_Q$. This means that we can factor/reduce/simplify $f,g$ by going through the product.
+
+
+\textbf{IMPORTANT NOTE}: Not all categories have a product for every two objects, however many of the ones we will see do.
+
+\begin{expb}{Products of some categories}
+    The product for objects $A,B \in \Obj(C)$ in the categories $C$ below is given by:
+    \begin{expb}{$\catset$}
+        The product of sets $A, B$ consists of the cartesian product $\{(a,b) | a\in A, b \in B\}$, where $\pi_A, \pi_B$ are the projection functions from $A\times B$ to $A$ and $B$ respectfully. Note that given a span $A \lfrom{f} Q \lto{g} B$, the unique $r_Q \left(\text{see }\refdef{product}\right)$ is given by $r_Q = (q: Q)\mapsto (f(q), g(q))$.
+    \end{expb}
+    \begin{expb}{$\catgrp$} The product of groups $(G_0, +_0,e_0)$, $(G_0, +_1,e_1)$ is a group $(G_0 \times G_1, (+_0, +_1), (e_0, e_1))$, where $G_0 \times G_1$ is the cartesian product on sets, and $(+_0, +_1)$ acts elementwise.
+    \end{expb}
+\end{expb}
+
+
+\begin{defB}[coproduct]{Coproduct}
+    Let $A, B \in \Obj (C)$ for some category $C$. A coproduct consists of:
+    \begin{itemize}
+        \item An object $A+ B \in \Obj(C)$
+        \item A morphism $i_A : A \to A + B $
+        \item A morphism $i_B : B \to A + B$
+    \end{itemize}
+    s.t. for any other cospan between $A$ and $B$: $A \lto{f} Q \lfrom{g} B$ $ \left(\refdef{cospan}\right)$  we have that there exists a unique map $r_Q:A + B \to Q$ s.t. TFDC:
+    % https://q.uiver.app/#q=WzAsNCxbMSwxLCJRIl0sWzEsMCwiQSArIEIiXSxbMCwxLCJBIl0sWzIsMSwiQiJdLFsxLDAsIlxcZXhpc3RzIXJfUSIsMix7InN0eWxlIjp7ImJvZHkiOnsibmFtZSI6ImRhc2hlZCJ9fX1dLFsyLDAsImYiLDJdLFszLDAsImciXSxbMiwxLCJpX0EiLDAseyJjdXJ2ZSI6LTJ9XSxbMywxLCJpX0IiLDIseyJjdXJ2ZSI6Mn1dXQ==
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            \& {A + B} \\
+            A \& Q \& B
+            \arrow["{\exists!r_Q}"', dashed, from=1-2, to=2-2]
+            \arrow["{i_A}", curve={height=-12pt}, from=2-1, to=1-2]
+            \arrow["f"', from=2-1, to=2-2]
+            \arrow["{i_B}"', curve={height=12pt}, from=2-3, to=1-2]
+            \arrow["g", from=2-3, to=2-2]
+        \end{tikzcd}\]
+
+\end{defB}
+
+\begin{expb}{Coproduct}
+    \begin{expb}{Set}
+        The coproduct of sets $A,B$ consists of the disjoint union $A\sqcup B$, where the $i_A : A \to A \sqcup B$ is the inclusion map of $A$, and $i_B : B \to A \sqcup B$ is the inclusion map of $B$. Note that for any cospan $A \lto{f} Q \lfrom{g}B$, the unique $r_Q$ $\left(\text{see \refdef{coproduct}}\right)$ is given by $r_Q = (q : Q) \mapsto \begin{cases}
+                f(q) & q \in A \\
+                g(q) & q \in B
+            \end{cases}$
+
+
+    \end{expb}
+
+\end{expb}
+
+
+
+
+
+
+
+
+\subsection{Duality}
+You may have noticed many of these definitions look the same, but are sort of opposite to each other. For instance the definition of a coproduct is the same as a product, but where all of the arrows are flipped. Likewise a cospan is a span but with all arrows are flipped. This notion is called duality, many times in category theory there is some definition that is of interest, and it turns out that usually, the dual definition (consisting of reversing all of the arrows) usually describes something interesting as well. When we have a name for the base thing, and we want a name for the dual, we just add the word co- in front. (coproduct, cospan, colimit, coalgebra, comonad, \ldots)
+
+
+\subsection{Functors}
+
+A functor is sort of like a homomorphism between categories. A functor should take an object to another object, and an arrow should take an arrow to another arrow. It should also preserve composition, as well as identity morphisms. More formally:
+
+\begin{defB}[functor]{Functor}
+    Let $C,D$ be two categories. A (covariant) \textit{functor} $F : C \to D$ consists of:
+    \begin{itemize}
+        \item A class function on objects:
+
+              For each object $X \in \Obj(C)$, there must exist an object $FX \in \Obj(D)$
+
+        \item A class function on morphisms:
+
+              For each morphism $f: X\to Y$ in $\Hom(C)$, there must exist a morphism $Ff : FX \to FY$.
+    \end{itemize}
+
+
+    These assignments must satisfy the following conditions:
+    \begin{itemize}
+        \item \textit{Preservation of $\id$}:
+              \begin{equation}
+                  F(\id_X^C) = \id_{FX}^D \;\text{ for all} \; X \in \Obj(C)
+              \end{equation}
+        \item \textit{Preservation of $\circ$}:
+              \begin{equation}
+                  F(g \circ^C f) = F(g) \circ^D F(f)
+              \end{equation}
+
+
+    \end{itemize}
+
+\end{defB}
+
+Intuitivly, a functor basically just adds $F$ in front of everything. In particualar, if you have any diagram that commutes:
+% https://q.uiver.app/#q=WzAsNCxbMSwxLCJYIl0sWzEsMCwiWSJdLFszLDEsIloiXSxbMCwxLCJcXGNkb3RzIl0sWzAsMiwiZyIsMl0sWzEsMiwiaCJdLFswLDEsImYiXSxbMywwXSxbMCwyLCJrIiwyLHsib2Zmc2V0IjotMywiY3VydmUiOjV9XV0=
+\[\begin{tikzcd}
+        & Y \\
+        \cdots & X && Z
+        \arrow["h", from=1-2, to=2-4]
+        \arrow[from=2-1, to=2-2]
+        \arrow["f", from=2-2, to=1-2]
+        \arrow["g"', from=2-2, to=2-4]
+        \arrow["k"', shift left=3, curve={height=30pt}, from=2-2, to=2-4]
+    \end{tikzcd}\]
+
+then after lifting the diagram (applying $F$ everywhere) it should still commute:
+% https://q.uiver.app/#q=WzAsNCxbMSwxLCJGWCJdLFsxLDAsIkZZIl0sWzMsMSwiRloiXSxbMCwxLCJcXGNkb3RzIl0sWzAsMiwiRmciLDJdLFsxLDIsIkZoIl0sWzAsMSwiRmYiXSxbMywwXSxbMCwyLCJGayIsMix7ImN1cnZlIjo1fV1d
+\[\begin{tikzcd}
+        & FY \\
+        \cdots & FX && FZ
+        \arrow["Fh", from=1-2, to=2-4]
+        \arrow[from=2-1, to=2-2]
+        \arrow["Ff", from=2-2, to=1-2]
+        \arrow["Fg"', from=2-2, to=2-4]
+        \arrow["Fk"', curve={height=30pt}, from=2-2, to=2-4]
+    \end{tikzcd}\]
+
+
+\begin{defB}[endofunctor]{Endofunctor}
+    An endofunctor is simply a functor that has the same codomain, namely an endofunctor on a category $C$ is a functor $F: C \to C$.
+\end{defB}
+
+
+\begin{expB}{Functor Examples}
+    \begin{expb}{On $\catset$}, these are functors, which take a set $X$ and a morphism $f : X \to Y$ to:
+        \begin{itemize}
+            \item $FX = X$,  and $F(f) = f$. This is called the identity functor.
+            \item $FX = X^2$, and $F(f) =(f, f) : X^2 \to Y^2$.
+            \item $FX = X + A$ for some fixed set $A$, where a morphism $f : X \to Y$ maps to:
+                  \begin{align}
+                      F(f) & : X + A \to Y + A                                                              \\
+                      F(f) & : (u : X + A) \mapsto \begin{cases} f(u) & u \in X\\ u & u \in A   \end{cases}
+                  \end{align}
+
+            \item $FX = 2^X$, and $F(f) = f[\cdot]$. (also called the covariant powerset functor)
+
+            \item The distribution functor:
+
+
+                  \begin{defB}[distribution-functor]{Distribution Functor}
+                      The distribution functor on $\catset$:
+                      \begin{itemize}
+                          \item On objects:
+                                maps a set $X$ to the set
+                                \begin{equation}
+                                    \Delta X = \{P : X \to [0,1]_\R  \mid \sum_{x \in X} P(x) = 1, P\text{ has finite support}\}
+                                \end{equation}
+                          \item On morphisms: maps a function $f: X \to Y$ to the function $\Delta f : \Delta X \to \Delta Y$, taking $P \mapsto (y : Y ) \mapsto \sum_{x \in f^{-1}[\{y\}]}P(x)$.
+                      \end{itemize}
+
+                  \end{defB}
+        \end{itemize}
+
+    \end{expb}
+
+\end{expB}
+
+
+
+\begin{expb}{Functors for programmers}
+    If you come from a programming background, the easiest way of thinking about a functor is of a generic type. Recall $\cattyp$ from \refdef{cattypes}. A functor on $\cattyp$ consists of a generic type/way to lift types (a function $:\texttt{Type}\to\texttt{Type}$), as well as a way to lift functions. The typical example is the list functor:
+    $$ : \texttt{X} \mapsto \texttt{X[]}$$
+    On morphisms, given a function/program $f : \texttt{X} \to \texttt{Y}$, you get the function $\texttt{map}(f) : \texttt{X[]} \to \texttt{Y[]}$, which just applys $f$ elementwise. For example take the function: $\texttt{len} : \texttt{string} \to \texttt{Nat}$. This function takes in a string, and returns it's length as a natural number. The lifted function $\texttt{map}(\texttt{len})$ will take in a string array, and output each strings length:
+    \begin{align}
+        \texttt{map}(\texttt{len}) & : \texttt{string[]}\to\texttt{Nat[]}                  \\
+                                   & :\texttt{["abc", "a", ""]} \mapsto \texttt{[3, 1, 0]}
+    \end{align}
+
+
+    If you are familiar with generic types, then a functor is exactly a generic type (usually written as \texttt{T<X>}) as well as a way to lift maps to the generic type.
+\end{expb}
+
+
+
+
+
+
+
+
+\subsection{Coalgebra}
+As it turns out, many systems can be modeled in terms of category theory, using coalgebras (which we will define shortly). In fact the standard notion of bisimulation and trace equivalence can be modeled canonically using fairly simple definitions, and because of how general the language of category theory is, it allows us to come up with canonical notions of bisimulation for many different systems. For now we have to define what a system is.
+
+\begin{defB}[coalgebra]{Coalgebra}
+    A coalgebra for an endofunctor $F : C \to C$ is a morphism
+    \begin{equation}
+        c_X : X \to FX
+    \end{equation}
+
+
+\end{defB}
+Note that there are no additional constraints. Note that if we think of $F$ adding structure to $X$, then a coalgebra can model many different forms of systems:
+
+\begin{expb}{Coalgebras on $\catset$}
+    Consider $\catset$. Here are some standard functors, along with the systems that they represent:
+
+    \begin{itemize}
+        \item $ F(X) = X $
+
+              Deterministic system (each state transitions to exactly one next state).
+
+        \item $ F(X) = A \times X $
+
+              Labeled deterministic system (each state emits a label in $A$ and transitions to a unique next state).
+
+        \item $ F(X) = 1 + X $
+
+              System that can either terminate (landing in the singleton $1$) or transition to a next state.
+
+        \item $ F(X) = 1 + X + X^2 $ ($+$ is disjoint union/coproduct of sets)
+
+              System where each state can either terminate, transition deterministically, or offer two next states, equivalently a potentially infinite tree.
+
+        \item $ F(X) = X^A $
+
+              System where each action $a \in A$ leads to a next state (an “action-indexed” deterministic system).
+
+
+        \item $F(X) = 2^X$ (also called powerset, $\P A$)
+
+
+              System where each state has a set of next states, or equivalently a non deterministic transition system.
+
+
+
+        \item $F(X) = \Delta X$ (where $\Delta$ is the distribution functor, and so $\Delta X$ is the set of distributions on $X$ which acts on morphisms via the pushforward measure)
+
+
+              System with probablistic transitions.
+
+        \item $F(X) = \R \times (\Delta X)^A$
+
+              Markov Decision Process (MDP) with state valued reward. See here \refdef{mdp-functor} for more.
+    \end{itemize}
+\end{expb}
+
+
+We will also need this structure:
+\begin{defB}[coalgebra-hom]{Coalgebra Homomorphism}
+    Let $c_X : X\to FX$, $c_Y : Y \to FY$ be two coalgebras.
+
+    A coalgebra homomorphism is a function $\phi : X \to Y$ such that TFDC:
+    % https://q.uiver.app/#q=WzAsNCxbMCwwLCJYIl0sWzEsMCwiWSJdLFswLDEsIkZYIl0sWzEsMSwiRlkiXSxbMCwxLCJcXHBoaSJdLFsyLDMsIkZcXHBoaSIsMl0sWzAsMiwiY19YIiwyXSxbMSwzLCJjX1kiXV0=
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            X \& Y \\
+            FX \& FY
+            \arrow["\phi", from=1-1, to=1-2]
+            \arrow["{c_X}"', from=1-1, to=2-1]
+            \arrow["{c_Y}", from=1-2, to=2-2]
+            \arrow["{F\phi}"', from=2-1, to=2-2]
+        \end{tikzcd}\]
+\end{defB}
+
+
+\begin{resB}{Coalgebras form a category}
+    For a given functor $F$, the set of $F$-coalgebras form a category. Namely this category has:
+    \begin{itemize}
+        \item Objects: $F$-coalgebras
+        \item Morphisms: $F$-coalgebra morphisms
+        \item Composition: Function composition
+        \item $\id_X$: Identity functions
+    \end{itemize}
+
+    \dline
+    \begin{proof}
+        The only things to check is that the composition of coalgebra homomorphisms is a coalgebra homomorphism, and that there are identities (which are just the identity functions).
+
+
+        Assume you have 3 coalgebras $c_X, c_Y, c_Z$. Let $\phi : c_X \to c_Y$, and $\psi : c_Y \to c_Z$.
+        % https://q.uiver.app/#q=WzAsNixbMCwwLCJYIl0sWzEsMCwiWSJdLFswLDEsIkZYIl0sWzEsMSwiRlkiXSxbMiwwLCJaIl0sWzIsMSwiRloiXSxbMCwxLCJcXHBoaSJdLFsyLDMsIkZcXHBoaSIsMl0sWzAsMiwiY19YIiwyXSxbMSwzLCJjX1kiXSxbMSw0LCJcXHBzaSJdLFszLDUsIkZcXHBzaSIsMl0sWzQsNSwiY19aIl1d
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                X \& Y \& Z \\
+                FX \& FY \& FZ
+                \arrow["\phi", from=1-1, to=1-2]
+                \arrow["{c_X}"', from=1-1, to=2-1]
+                \arrow["\psi", from=1-2, to=1-3]
+                \arrow["{c_Y}", from=1-2, to=2-2]
+                \arrow["{c_Z}", from=1-3, to=2-3]
+                \arrow["{F\phi}"', from=2-1, to=2-2]
+                \arrow["{F\psi}"', from=2-2, to=2-3]
+            \end{tikzcd}\]
+        The diagram commutes because both $\phi$ and $\psi$ are coalgebras.
+
+        Now because $F$ is a functor, $F\phi \circ F\psi = F(\phi \circ \psi)$, and so you can make the homomorphism : $c_X \to c_Z$:
+        % https://q.uiver.app/#q=WzAsNCxbMCwwLCJYIl0sWzIsMCwiWiJdLFswLDEsIkZYIl0sWzIsMSwiRloiXSxbMCwxLCJcXHBzaSBcXGNpcmNcXHBoaSJdLFsyLDMsIkYoXFxwc2kgXFxjaXJjIFxccGhpKSIsMl0sWzAsMiwiY19YIiwyXSxbMSwzLCJjX1oiXV0=
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                X \&\& Z \\
+                FX \&\& FZ
+                \arrow["{\psi \circ\phi}", from=1-1, to=1-3]
+                \arrow["{c_X}"', from=1-1, to=2-1]
+                \arrow["{c_Z}", from=1-3, to=2-3]
+                \arrow["{F(\psi \circ \phi)}"', from=2-1, to=2-3]
+            \end{tikzcd}\]
+
+        The identity part can be shown as well by just assuming $\phi = \id^X, Y=X$ or $\psi = \id^Y, Z =Y$. Associativity can be shown as well because coalgebra homomorphism composition is the same as function composition.
+
+    \end{proof}
+\end{resB}
+
+
+
+\section{Slice and product category}
+Later we will use the following constructions:
+
+\begin{defB}[slice-cat]{Slice Category}
+    Let $C$ be some category, and let $A \in \Obj (C)$. The slice category $C/A$ is the category with:
+    \begin{itemize}
+        \item $\Obj(C/A)$:
+              $V_X$, where $V_X : X \to A$ is a morphism in $C$.
+
+        \item $\Hom(C/A)$: $f : V_X \to V_Y$ reduces to $f : X\to Y$ s.t. TFDC:
+              % https://q.uiver.app/#q=WzAsMyxbMCwwLCJYIl0sWzIsMCwiWSJdLFsxLDEsIkEiXSxbMCwxLCJmIl0sWzAsMiwiVl9YIiwyXSxbMSwyLCJWX1kiXV0=
+              \[\begin{tikzcd}[ampersand replacement=\&]
+                      X \&\& Y \\
+                      \& A
+                      \arrow["f", from=1-1, to=1-3]
+                      \arrow["{V_X}"', from=1-1, to=2-2]
+                      \arrow["{V_Y}", from=1-3, to=2-2]
+                  \end{tikzcd}\]
+
+
+
+
+
+    \end{itemize}
+
+\end{defB}
+
+\begin{defB}[product-cat]{Product Category}
+    Let $C$ and $D$ be two categories. Define the product category $C \times D$ as the category with:
+
+    \begin{itemize}
+        \item $\Obj(C \times D) \eqdef \{(X,Y) \mid X \in \Obj(C), Y \in \Obj(D)\}$ (as a class, not necessarily a set)
+        \item $\Hom (C \times D) = \{(f,g) | f \in \Hom (C), g \in \Hom(D)\}$
+    \end{itemize}
+\end{defB}
+
+
+
+
+\section{Bisimulation and Behavioral Equivalence}
+One natural question to answer is given two systems, are they behaviorally equivalent. This question can be formalized by looking at terminal objects in the category of coalgebras.
+
+\begin{expb}{Terminal Coalgebra}
+    As it turns out, most categories have a notion of a terminal object. Here we give some examples:
+    %https://link.springer.com/chapter/10.1007/BFb0018361
+    \begin{expb}{$FX = A \times X$}
+        The final coalgebra consists of $A^\omega$, which can be interpreted as infinite streams with elements of $A$.
+    \end{expb}
+
+    \begin{expb}{$FX = 2 \times X^A$}
+        The final coalgebra consists of $2^{A^*}$, the set of languages over $A$.
+    \end{expb}
+
+
+
+\end{expb}
+
+\todo[inline]{give bisimulation definition, coinduction, examples}
+
+
+
+
+\subsection{Coupling}
+\begin{defb}[set-element-coupling]{Set Element Coupling}
+
+    Let
+    \begin{itemize}
+        \item $F : \catset \to \catset$,
+        \item $n \in \omega$,
+        \item $X \in \Obj (\catset)$,
+        \item $t_i \in FX$ for all $i \in n$.
+    \end{itemize}
+    Then $t \in F(X^n)$ is a \textit{set element coupling} iff for all $i$ we have $F\pi_i t = t_i$. Or equivalently if TFDC:
+    % https://q.uiver.app/#q=WzAsMyxbMCwwLCIqIl0sWzEsMCwiRlhebiJdLFsxLDEsIkZYIl0sWzEsMiwiRlxccGlfaSJdLFswLDIsInRfaSIsMl0sWzAsMSwidCJdXQ==
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            {*} \& {FX^n} \\
+            \& FX
+            \arrow["t", from=1-1, to=1-2]
+            \arrow["{t_i}"', from=1-1, to=2-2]
+            \arrow["{F\pi_i}", from=1-2, to=2-2]
+        \end{tikzcd}\]
+
+\end{defb}
+
+\subsubsection{New definitions of couplings (new)}
+We can generalize this definition so that it does not need to operate on set, also so that it acts on objects instead of elements, and not limit it to one object $X$ but instead a collection of different objects:
+
+\begin{defB}[coupling]{Coupling}
+    A \textit{coupling} for $\prod_{i \in I} F(X_i)$ is a morphism $c: \prod_{i \in I} F(X_i) \to F(\prod_{i \in I} X_i)$ such that TFDC:
+
+    % https://q.uiver.app/#q=WzAsNSxbMCwzLCJcXHByb2Rfe2kgXFxpbiBJfUYoWF9pKSJdLFs0LDMsIkZcXGxlZnQoXFxwcm9kX3tpIFxcaW4gSX1YX2lcXHJpZ2h0KSJdLFsyLDIsIkZfe1hfe2lfMH19Il0sWzIsMSwiRl97WF97aV8xfX0iXSxbMiwwLCJcXGNkb3RzIl0sWzAsMiwiXFxwaV97aV8wfSIsMV0sWzEsMiwiRihcXHBpX3tpXzB9KSIsMV0sWzAsMywiXFxwaV97aV8xfSIsMSx7ImxhYmVsX3Bvc2l0aW9uIjo0MCwiY3VydmUiOi0xfV0sWzEsMywiRihcXHBpX3tpXzF9KSIsMSx7ImN1cnZlIjoxfV0sWzEsNCwiIiwwLHsiY3VydmUiOjN9XSxbMCw0LCIiLDAseyJjdXJ2ZSI6LTN9XSxbMCwxLCJjIiwxXV0=
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            \&\& \cdots \\
+            \&\& {F_{X_{i_1}}} \\
+            \&\& {F_{X_{i_0}}} \\
+            {\prod_{i \in I}F(X_i)} \&\&\&\& {F\left(\prod_{i \in I}X_i\right)}
+            \arrow[curve={height=-18pt}, from=4-1, to=1-3]
+            \arrow["{\pi_{i_1}}"{description, pos=0.4}, curve={height=-6pt}, from=4-1, to=2-3]
+            \arrow["{\pi_{i_0}}"{description}, from=4-1, to=3-3]
+            \arrow["c"{description}, from=4-1, to=4-5]
+            \arrow[curve={height=18pt}, from=4-5, to=1-3]
+            \arrow["{F(\pi_{i_1})}"{description}, curve={height=6pt}, from=4-5, to=2-3]
+            \arrow["{F(\pi_{i_0})}"{description}, from=4-5, to=3-3]
+        \end{tikzcd}\]
+
+    i.e. $\forall_i^I \pi_i = F\pi_i \circ c$
+\end{defB}
+
+this relates to the earlier definition above:
+\begin{resb}{Coupling $\implies$ Coupling (original) for every object}
+    Let $c$ be a coupling \refdef{coupling} on $\catset$  between $X_i = X$ for all $i \in I$ for a finite $I$ (so $|I|\in \omega$). Then for any $(t_i)_{i \in I} \in \prod_{i \in I} F(X)$ is a set element coupling \refdef{set-element-coupling}.
+
+    \dline
+    \begin{proof}
+        Take $p \eqdef (t_i)_{i \in I} \in \prod_{i \in I} F(X)$. From the definition of coupling, we have that $\pi_i(p) = (F(\pi_i) \circ c)p = (F(\pi_i) (c(p))$. Letting $t \eqdef c(p)$, we get $F(\pi_i) t = F\pi_i t$. Letting $n  = |I| \in \omega$ we get exactly the definition of a set element coupling.
+    \end{proof}
+
+\end{resb}
+
+(note this is a simpler version of a distributive law for a monad, however we do not assume $F$ is a monad, but also specifically do this for a product functor)
+
+Suppose now that $c_R : R \to FR$ is a bisimulation between $c_X : X \to FX$, and $c_Y : Y \to FY$. Then note because of \refdef{coalgebra-hom}, there must be some span on sets $X \lfrom{\phi_X} R \lto{\phi_Y} Y$, and because $\catset$ has products, by \refdef{product} these must factor out into product maps. The question is, is there any way to given a bisimulation $c_R : R \to FR$, reduce it to a coalgebra of type $X \times Y \to F(X \times Y)$? this would allow for an easier way to interpret what the bisimulation is doing.
+
+
+
+\begin{resB}{Products of Coalgberas vs Products on Original Category}
+    Let $C$ be a category with products.
+
+    If a coupling $\gamma: FX \times FY \to F(X \times Y)$ exists, then for any two coalgebras $c_x : X \to FX, c_Y : Y \to FY$ we have:
+    \begin{itemize}
+        \item The product of $c_X, c_Y$ exists in the category of $F$-coalgebras.
+        \item This product $c_{X \times Y} : X \times Y \to F(X \times Y)$
+    \end{itemize}
+    \dline
+    \begin{proof}
+        Let $c_X : X \to FX$, and $c_Y : Y \to FY$, and let $c_R: R \to FR$ be a bisimulation, with homomorphisms $\phi_X : R \to X$, $\phi_Y : R \to Y$.
+        The goal is to show that a product exists, i.e. $\exists c_{X \times Y} : X \times Y \to F(X \times Y)$ such that for any bisimulation $c_R$, TFDC (in the category of F-coalgebras):
+
+        % https://q.uiver.app/#q=WzAsNCxbMiwyLCJjX1IiXSxbMCwyLCJjX1giXSxbNCwyLCJjX1kiXSxbMiwwLCJjX3tYIFxcdGltZXMgWX0iXSxbMCwxLCJcXHBoaV9YIl0sWzAsMiwiXFxwaGlfWSIsMl0sWzMsMSwiXFxwaV9YIiwyXSxbMywyLCJcXHBpX1kiXSxbMCwzLCJcXGV4aXN0cyAhIiwxLHsic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZGFzaGVkIn19fV1d
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                \&\& {c_{X \times Y}} \\
+                \\
+                {c_X} \&\& {c_R} \&\& {c_Y}
+                \arrow["{\pi_X}"', from=1-3, to=3-1]
+                \arrow["{\pi_Y}", from=1-3, to=3-5]
+                \arrow["{\exists !}"{description}, dashed, from=3-3, to=1-3]
+                \arrow["{\phi_X}", from=3-3, to=3-1]
+                \arrow["{\phi_Y}"', from=3-3, to=3-5]
+            \end{tikzcd}\]
+
+        Now going back to $C$, notice that since $C$ has products, there exists an $f : R \to X \times Y$ such that TFDC (in $C$):
+        % https://q.uiver.app/#q=WzAsNCxbMiwyLCJSIl0sWzAsMiwiWCJdLFs0LDIsIlkiXSxbMiwwLCJYIFxcdGltZXMgWSJdLFswLDEsIlxccGhpX1giXSxbMCwyLCJcXHBoaV9ZIiwyXSxbMywxLCJcXHBpX1giLDJdLFszLDIsIlxccGlfWSJdLFswLDMsIlxcZXhpc3RzICFmIiwxLHsic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZGFzaGVkIn19fV1d
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                \&\& {X \times Y} \\
+                \\
+                X \&\& R \&\& Y
+                \arrow["{\pi_X}"', from=1-3, to=3-1]
+                \arrow["{\pi_Y}", from=1-3, to=3-5]
+                \arrow["{\exists !f}"{description}, dashed, from=3-3, to=1-3]
+                \arrow["{\phi_X}", from=3-3, to=3-1]
+                \arrow["{\phi_Y}"', from=3-3, to=3-5]
+            \end{tikzcd}\]
+    \end{proof}
+
+
+
+
+    Now note that we assume $R$ is a bisimulaiton, so we have TFDC (in $C$)
+
+    % https://q.uiver.app/#q=WzAsNixbMSwwLCJSIl0sWzAsMCwiWCJdLFsyLDAsIlkiXSxbMiwxLCJGWSJdLFswLDEsIkZYIl0sWzEsMSwiRlIiXSxbMCwxLCJcXHBoaV9YIiwyXSxbMCwyLCJcXHBoaV9ZIl0sWzAsNSwiY19SIiwyXSxbNSw0LCJGXFxwaGlfWCJdLFs1LDMsIkZcXHBoaV9ZIiwyXSxbMSw0LCJjX1kiLDJdLFsyLDMsImNfWSJdXQ==
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            X \& R \& Y \\
+            FX \& FR \& FY
+            \arrow["{c_Y}"', from=1-1, to=2-1]
+            \arrow["{\phi_X}"', from=1-2, to=1-1]
+            \arrow["{\phi_Y}", from=1-2, to=1-3]
+            \arrow["{c_R}"', from=1-2, to=2-2]
+            \arrow["{c_Y}", from=1-3, to=2-3]
+            \arrow["{F\phi_X}", from=2-2, to=2-1]
+            \arrow["{F\phi_Y}"', from=2-2, to=2-3]
+        \end{tikzcd}\]
+
+    Notice, that if we then consider the object $FX \times FY$, this is a product object. So it must have projection maps $\pi_{FX}, \pi_{FY}$. Furthermore, since $X \times Y \lto{\pi_X} X \lto{c_X} FX$ and $X \times Y \lto{\pi_Y} Y \lto{c_Y} FY$, this forms a span of $FX$ and $FY$, so there must be a unique map $\exists ! : X \times Y \to FX \times FY$ such that TFDC:
+    % https://q.uiver.app/#q=WzAsOCxbMSwxLCJSIl0sWzEsMywiRlIiXSxbMiwyLCJZIl0sWzIsNCwiRlkiXSxbMCwwLCJYIl0sWzAsMiwiRlgiXSxbNSwxLCJYXFx0aW1lcyBZIl0sWzUsMywiRlggXFx0aW1lcyBGWSJdLFswLDIsIlxccGhpX1kiLDFdLFswLDQsIlxccGhpX1giLDFdLFsxLDUsIkZcXHBoaV9YIiwxXSxbMSwzLCJGXFxwaGlfWSIsMV0sWzAsMSwiY19SIiwxLHsibGFiZWxfcG9zaXRpb24iOjMwfV0sWzQsNSwiY19YIiwxLHsibGFiZWxfcG9zaXRpb24iOjMwfV0sWzIsMywiY19ZIiwxLHsibGFiZWxfcG9zaXRpb24iOjMwfV0sWzYsNCwiXFxwaV9YIiwxLHsibGFiZWxfcG9zaXRpb24iOjMwfV0sWzYsMiwiXFxwaV9ZIiwxLHsibGFiZWxfcG9zaXRpb24iOjYwfV0sWzAsNiwiXFxleGlzdHMgISBmIiwxLHsibGFiZWxfcG9zaXRpb24iOjYwLCJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XSxbNyw1LCJcXHBpX3tGWH0iLDEseyJsYWJlbF9wb3NpdGlvbiI6MzB9XSxbNywzLCJcXHBpX3tGWX0iLDFdLFs2LDcsIlxcZXhpc3RzICEgPSBcXGxhbmdsZSBjX3gsIGNfeVxccmFuZ2xlIiwwLHsic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZGFzaGVkIn19fV1d
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            X \\
+            \& R \&\&\&\& {X\times Y} \\
+            FX \&\& Y \\
+            \& FR \&\&\&\& {FX \times FY} \\
+            \&\& FY
+            \arrow["{c_X}"{description, pos=0.3}, from=1-1, to=3-1]
+            \arrow["{\phi_X}"{description}, from=2-2, to=1-1]
+            \arrow["{\exists ! f}"{description, pos=0.6}, dashed, from=2-2, to=2-6]
+            \arrow["{\phi_Y}"{description}, from=2-2, to=3-3]
+            \arrow["{c_R}"{description, pos=0.3}, from=2-2, to=4-2]
+            \arrow["{\pi_X}"{description, pos=0.3}, from=2-6, to=1-1]
+            \arrow["{\pi_Y}"{description, pos=0.6}, from=2-6, to=3-3]
+            \arrow["{\exists ! = \langle c_x, c_y\rangle}", dashed, from=2-6, to=4-6]
+            \arrow["{c_Y}"{description, pos=0.3}, from=3-3, to=5-3]
+            \arrow["{F\phi_X}"{description}, from=4-2, to=3-1]
+            \arrow["{F\phi_Y}"{description}, from=4-2, to=5-3]
+            \arrow["{\pi_{FX}}"{description, pos=0.3}, from=4-6, to=3-1]
+            \arrow["{\pi_{FY}}"{description}, from=4-6, to=5-3]
+        \end{tikzcd}\]
+
+    Now because $F$ is a functor, the following diagram must commute as well (it is just applying the functor everywhere on the product diagram for $X\times Y$, and functors preserve commutative diagrams)
+
+    % https://q.uiver.app/#q=WzAsNCxbMiwyLCJGUiJdLFswLDIsIkZYIl0sWzQsMiwiRlkiXSxbMiwwLCJGKFggXFx0aW1lcyBZKSJdLFswLDEsIkYoXFxwaGlfWCkiXSxbMCwyLCJGKFxccGhpX1kpIiwyXSxbMywxLCJGKFxccGlfWCkiLDJdLFszLDIsIkYoXFxwaV9ZKSJdLFswLDMsIkYoZikiLDFdXQ==
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            \&\& {F(X \times Y)} \\
+            \\
+            FX \&\& FR \&\& FY
+            \arrow["{F(\pi_X)}"', from=1-3, to=3-1]
+            \arrow["{F(\pi_Y)}", from=1-3, to=3-5]
+            \arrow["{F(f)}"{description}, from=3-3, to=1-3]
+            \arrow["{F(\phi_X)}", from=3-3, to=3-1]
+            \arrow["{F(\phi_Y)}"', from=3-3, to=3-5]
+        \end{tikzcd}\]
+
+
+    So we add it to our diagram:
+    % https://q.uiver.app/#q=WzAsOSxbMSwxLCJSIl0sWzEsMywiRlIiXSxbMiwyLCJZIl0sWzIsNCwiRlkiXSxbMCwwLCJYIl0sWzAsMiwiRlgiXSxbNSwxLCJYXFx0aW1lcyBZIl0sWzUsMywiRlggXFx0aW1lcyBGWSJdLFsxLDYsIkYoWFxcdGltZXMgWSkiXSxbMCwyLCJcXHBoaV9ZIiwxXSxbMCw0LCJcXHBoaV9YIiwxXSxbMSw1LCJGXFxwaGlfWCIsMV0sWzEsMywiRlxccGhpX1kiLDFdLFswLDEsImNfUiIsMSx7ImxhYmVsX3Bvc2l0aW9uIjozMH1dLFs0LDUsImNfWCIsMSx7ImxhYmVsX3Bvc2l0aW9uIjozMH1dLFsyLDMsImNfWSIsMSx7ImxhYmVsX3Bvc2l0aW9uIjozMH1dLFs2LDQsIlxccGlfWCIsMSx7ImxhYmVsX3Bvc2l0aW9uIjozMH1dLFs2LDIsIlxccGlfWSIsMSx7ImxhYmVsX3Bvc2l0aW9uIjo2MH1dLFswLDYsIlxcZXhpc3RzICEgZiIsMSx7ImxhYmVsX3Bvc2l0aW9uIjo2MCwic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZGFzaGVkIn19fV0sWzcsNSwiXFxwaV97Rlh9IiwxLHsibGFiZWxfcG9zaXRpb24iOjMwfV0sWzcsMywiXFxwaV97Rll9IiwxXSxbNiw3LCJcXGV4aXN0cyAhID0gXFxsYW5nbGUgY194LCBjX3lcXHJhbmdsZSIsMCx7InN0eWxlIjp7ImJvZHkiOnsibmFtZSI6ImRhc2hlZCJ9fX1dLFs4LDMsIkZcXHBpX1kiLDFdLFs4LDUsIkZcXHBpX1giLDFdLFsxLDgsIkZmIiwxXV0=
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            X \\
+            \& R \&\&\&\& {X\times Y} \\
+            FX \&\& Y \\
+            \& FR \&\&\&\& {FX \times FY} \\
+            \&\& FY \\
+            \\
+            \& {F(X\times Y)}
+            \arrow["{c_X}"{description, pos=0.3}, from=1-1, to=3-1]
+            \arrow["{\phi_X}"{description}, from=2-2, to=1-1]
+            \arrow["{\exists ! f}"{description, pos=0.6}, dashed, from=2-2, to=2-6]
+            \arrow["{\phi_Y}"{description}, from=2-2, to=3-3]
+            \arrow["{c_R}"{description, pos=0.3}, from=2-2, to=4-2]
+            \arrow["{\pi_X}"{description, pos=0.3}, from=2-6, to=1-1]
+            \arrow["{\pi_Y}"{description, pos=0.6}, from=2-6, to=3-3]
+            \arrow["{\exists ! = \langle c_x, c_y\rangle}", dashed, from=2-6, to=4-6]
+            \arrow["{c_Y}"{description, pos=0.3}, from=3-3, to=5-3]
+            \arrow["{F\phi_X}"{description}, from=4-2, to=3-1]
+            \arrow["{F\phi_Y}"{description}, from=4-2, to=5-3]
+            \arrow["Ff"{description}, from=4-2, to=7-2]
+            \arrow["{\pi_{FX}}"{description, pos=0.3}, from=4-6, to=3-1]
+            \arrow["{\pi_{FY}}"{description}, from=4-6, to=5-3]
+            \arrow["{F\pi_X}"{description}, from=7-2, to=3-1]
+            \arrow["{F\pi_Y}"{description}, from=7-2, to=5-3]
+        \end{tikzcd}\]
+
+    Now note that since we have a coupling $\left(\refdef{coupling}\right)$ $\gamma : FX \times FY \to F(X\times Y)$, it must commute with $\pi_X, \pi_Y, F\pi_X,F\pi_Y$ in the diagram above, so we get TFDC:
+
+    % https://q.uiver.app/#q=WzAsOSxbMSwxLCJSIl0sWzEsMywiRlIiXSxbMiwyLCJZIl0sWzIsNCwiRlkiXSxbMCwwLCJYIl0sWzAsMiwiRlgiXSxbNSwxLCJYXFx0aW1lcyBZIl0sWzUsMywiRlggXFx0aW1lcyBGWSJdLFsxLDYsIkYoWFxcdGltZXMgWSkiXSxbMCwyLCJcXHBoaV9ZIiwxXSxbMCw0LCJcXHBoaV9YIiwxXSxbMSw1LCJGXFxwaGlfWCIsMV0sWzEsMywiRlxccGhpX1kiLDFdLFswLDEsImNfUiIsMSx7ImxhYmVsX3Bvc2l0aW9uIjozMH1dLFs0LDUsImNfWCIsMSx7ImxhYmVsX3Bvc2l0aW9uIjozMH1dLFsyLDMsImNfWSIsMSx7ImxhYmVsX3Bvc2l0aW9uIjozMH1dLFs2LDQsIlxccGlfWCIsMSx7ImxhYmVsX3Bvc2l0aW9uIjozMH1dLFs2LDIsIlxccGlfWSIsMSx7ImxhYmVsX3Bvc2l0aW9uIjo2MH1dLFswLDYsIlxcZXhpc3RzICEgZiIsMSx7ImxhYmVsX3Bvc2l0aW9uIjo2MCwic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZGFzaGVkIn19fV0sWzcsNSwiXFxwaV97Rlh9IiwxLHsibGFiZWxfcG9zaXRpb24iOjMwfV0sWzcsMywiXFxwaV97Rll9IiwxXSxbNiw3LCJcXGV4aXN0cyAhID0gXFxsYW5nbGUgY194LCBjX3lcXHJhbmdsZSIsMCx7InN0eWxlIjp7ImJvZHkiOnsibmFtZSI6ImRhc2hlZCJ9fX1dLFs3LDgsIlxcZ2FtbWEiLDAseyJjdXJ2ZSI6LTV9XSxbOCw1LCJGXFxwaV9YIiwxXSxbMSw4LCJGZiIsMV0sWzgsMywiRlxccGlfWSIsMV1d
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            X \\
+            \& R \&\&\&\& {X\times Y} \\
+            FX \&\& Y \\
+            \& FR \&\&\&\& {FX \times FY} \\
+            \&\& FY \\
+            \\
+            \& {F(X\times Y)}
+            \arrow["{c_X}"{description, pos=0.3}, from=1-1, to=3-1]
+            \arrow["{\phi_X}"{description}, from=2-2, to=1-1]
+            \arrow["{\exists ! f}"{description, pos=0.6}, dashed, from=2-2, to=2-6]
+            \arrow["{\phi_Y}"{description}, from=2-2, to=3-3]
+            \arrow["{c_R}"{description, pos=0.3}, from=2-2, to=4-2]
+            \arrow["{\pi_X}"{description, pos=0.3}, from=2-6, to=1-1]
+            \arrow["{\pi_Y}"{description, pos=0.6}, from=2-6, to=3-3]
+            \arrow["{\exists ! = \langle c_x, c_y\rangle}", dashed, from=2-6, to=4-6]
+            \arrow["{c_Y}"{description, pos=0.3}, from=3-3, to=5-3]
+            \arrow["{F\phi_X}"{description}, from=4-2, to=3-1]
+            \arrow["{F\phi_Y}"{description}, from=4-2, to=5-3]
+            \arrow["Ff"{description}, from=4-2, to=7-2]
+            \arrow["{\pi_{FX}}"{description, pos=0.3}, from=4-6, to=3-1]
+            \arrow["{\pi_{FY}}"{description}, from=4-6, to=5-3]
+            \arrow["\gamma", curve={height=-30pt}, from=4-6, to=7-2]
+            \arrow["{F\pi_X}"{description}, from=7-2, to=3-1]
+            \arrow["{F\pi_Y}"{description}, from=7-2, to=5-3]
+        \end{tikzcd}\]
+
+
+    Thus finally we see that there is a coalgebra $c_{X \times Y} \eqdef \gamma \circ \langle c_x, c_y  \rangle : X \times Y \to F(X\times Y) $, and there are homomorphisms $f : c_R \to c_{X \times Y}$, $\pi_{X} : c_{X \times Y} \to c_X$, and $\pi_Y : c_{X \times Y} \to c_Y$.
+
+    Now to show that the coalgebra homomorphism $f$ (not $f$ on $\catset$, but $f$ as a coalgebra homomorphism) is unique, simply note that any coalgebra homomorphism $p: c_R \to c_{X \times Y}$ must be a map $f : R \to X \times Y$, and since on $\catset$ this is unique, it must also be unique
+
+\end{resB}
+
+
+\section{Coalgebra of MDPs (new)}
+
+Recall the MDP functor:
+\begin{defB}[mdp-functor]{MDP functor}
+    Define the MDP functor on $\catset$ as:
+    \begin{equation}
+        F : S \to \R \times (\Delta S)^A
+    \end{equation}
+\end{defB}
+
+Note this will consider MDPs with state valued reward. Alternatively you could consider $ F : S \to (\R \times \Delta S)^A$, which assigns a reward to a transition $(s,a, s')$ instead of a state $s$. Much of the work we do should transfer up to some minor changes.
+
+
+\begin{resB}[MDP-hom]{MDP homomorphim}
+
+    Consider MDP coalgebras:
+    \begin{align}
+        \mathcal M_X & :X \to FX                                       \\
+                     & : x \mapsto (r^X_x : \R , P_x^X : (\Delta X)^A) \\
+        \mathcal M_Y & :Y \to FY                                       \\
+                     & : y \mapsto (r^Y_y : \R , P_y^Y : (\Delta Y)^A)
+    \end{align}
+
+    Note that $\phi$ is a MDP-coalgebra homomorphism iff:
+    % https://q.uiver.app/#q=WzAsNCxbMCwwLCJYIl0sWzEsMCwiWSJdLFsxLDEsIkZZIl0sWzAsMSwiRlgiXSxbMCwzLCJcXG1hdGhjYWwgTV9YIiwyXSxbMywyLCJGXFxwaGkiLDJdLFswLDEsIlxccGhpIl0sWzEsMiwiXFxtYXRoY2FsIE1fWSJdXQ==
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            X \& Y \\
+            FX \& FY
+            \arrow["\phi", from=1-1, to=1-2]
+            \arrow["{\mathcal M_X}"', from=1-1, to=2-1]
+            \arrow["{\mathcal M_Y}", from=1-2, to=2-2]
+            \arrow["{F\phi}"', from=2-1, to=2-2]
+        \end{tikzcd}\]
+    \begin{align}
+        \ldots & \iff (F\phi) \circ \mathcal M_X = \mathcal M_Y \circ \phi                                                                                    \\
+               & \iff \forall_x^X (F\phi) \circ \mathcal M_X (x) = \mathcal M_Y \circ \phi(x)                                                                 \\
+               & \iff \forall_x^X(F\phi)(r^X_x, P_x^X) = (r_{\phi(x)}^Y, P_{\phi(x)}^Y)                                                                       \\
+               & \iff \forall_x^X (r_x^X, (\Delta\phi) P_x^X) =(r_{\phi(x)}^Y, P_{\phi(x)}^Y)                                                                 \\
+               & \iff \forall_x^X \left(r_x^X, (y : Y, a : A) \mapsto \sum_{\substack{x' \in X                                                                \\\phi(x') = y}}P_x^X(a,x')\right) =(r_{\phi(x)}^Y, P_{\phi(x)}^Y)\\
+               & \iff \forall_x^X (r_x^X = r_{\phi(x)}^Y) \land \forall_y^Y \forall_a^A \left(\sum_{\substack{x' \in X                                        \\ \phi(x) = y}}{P_x^X (a,x')} = P_{\phi(x)}^Y (a,y) \right)\\
+               & \iff \forall_x^X (r_x^X = r_{\phi(x)}^Y) \land \forall_y^Y \forall_a^A \left(P^Y(\phi(x) \lto{a} y) = P^X(x \lto{a} \phi^{-1}[\{y\}] \right)
+    \end{align}
+
+\end{resB}
+
+
+
+\subsection{Bisimulation}
+Recall the transition system version of bisimulation:
+\begin{defB}[standard-mdp-bisim]{Standard MDP Bisimulation}
+    For an MDP $\M = (S,A,P,R,\gamma)$, a bisimulation is an equivalence relation $B \subseteq S^2$ such that:
+    \begin{align}
+        s B s' \iff R(s) = R(s') \land  \forall_a^A \forall_C^{S/B} P[s \lto{a} C] = P[s' \lto{a} C]
+    \end{align}
+    And bisimilarity is the union of all such $B$.
+
+\end{defB}
+
+Now conversly, when you look at the coalgebraic version, some natural questions arise:
+\begin{enumerate}
+    \item How can you get a relation out of a span?
+    \item If you take the relation, also assume $c_y = c_x$, does this definition correspond to the standard one?
+\end{enumerate}
+
+For question 1, the natural choice for a relation is $\{(\phi_x(b), \phi_y(b) | b \in R\}$. Or equivalently using categories, simply take the unique map $f$ to the product, and the image of that map:
+% https://q.uiver.app/#q=WzAsNCxbMSwyLCJSIl0sWzAsMiwiWCJdLFsyLDIsIlkiXSxbMSwwLCJYIFxcdGltZXMgWSJdLFswLDEsIlxccGhpX1giLDJdLFswLDIsIlxccGhpX1kiXSxbMywxXSxbMywyXSxbMCwzLCJcXGV4aXN0cyAhIGYiLDIseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XV0=
+\[\begin{tikzcd}
+        & {X \times Y} \\
+        \\
+        X & B & Y
+        \arrow[from=1-2, to=3-1]
+        \arrow[from=1-2, to=3-3]
+        \arrow["{\exists ! f}"', dashed, from=3-2, to=1-2]
+        \arrow["{\phi_X}"', from=3-2, to=3-1]
+        \arrow["{\phi_Y}", from=3-2, to=3-3]
+    \end{tikzcd}\]
+
+
+
+For 2, it is a bit more tricky. I think it can be done if you assume that the resulting relation is an equivalence relation.
+
+We give the formal proof first, then give some intuition.
+\begin{resB}{Coalgebraic Bisimulation is MDP bisimulation}
+    Suppose $c_B$ is an MDP-coalgebraic bisimulation:
+    % https://q.uiver.app/#q=WzAsMyxbMSwwLCJjX0IiXSxbMCwwLCJjX1giXSxbMiwwLCJjX1giXSxbMCwxLCJcXHBoaV97WF8wfSIsMl0sWzAsMiwiXFxwaGlfe1hfMX0iXV0=
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            {c_X} \& {c_B} \& {c_X}
+            \arrow["{\phi_{X_0}}"', from=1-2, to=1-1]
+            \arrow["{\phi_{X_1}}", from=1-2, to=1-3]
+        \end{tikzcd}\]
+    Such that the induced relation on $X^2$ is an equivalence relation. Then the induced relation is a traditional MDP bisimulation.
+
+    As notation, let $B_I$ be the induced relation on $X^2$ from $B$, namely $\{\phi_X(b)\}$
+    \dline
+    \begin{proof}
+
+    \end{proof}
+\end{resB}
+
+
+\begin{expb}{Intuition for Bisimulation}
+    Now, notice that since $B_I$ is an equivalence relation, you can view it as a matrix of size $|X| \times |X|$, where each entry corresponds to elements of $B_I \subseteq X^2$. Furthermore, you can reorder the indecies so that the matrix is block diagonal (using transitivity, reflexivity, symmetry of $B$)
+
+    In the following figure, the red dots are elements of $B$, the green squares correspond to the actual matrix entries (so each green square corresponds to a pair $(x_0, x_1) \in B_I \subseteq X^2$, and the blue squares represent equivalence classes of $B$. Everything outside of a blue square will be empty.
+    \begin{figure}[H]
+
+        \includesvg[inkscapelatex=false, scale=0.8]{images/eq-classes.svg}
+        \centering
+        \caption{Bisimulation B grouped by equivalence classes}
+    \end{figure}
+
+    Notice that $P^B[b \lto{a} \phi_{X_0}^{-1} [\{x\}] = P^X[\phi_{X_0}(b)\lto{a} x]$ and $P^B[b \lto{a} \phi_{X_1}^{-1} [\{x'\}] = P^X[\phi_{X_1}(b)\lto{a} x']$ imply:
+    \begin{center}
+        \begin{minipage}{0.45\textwidth}
+            \begin{figure}[H]
+
+                \includesvg[inkscapelatex=false, scale=0.8]{images/eq-classes-x.svg}
+                \centering
+                \caption{The Transitions from any element $b\in \phi_{X_0}^{-1}[\{x\}]$, to the entirety of $\phi_{X_0}^{-1}[\{x'\}]$}
+            \end{figure}
+            Let $b$ be one of the red dots pictured
+
+            (i.e. some $b\in B$ s.t. $\phi_{X_0}(b) = x$)
+
+
+            Each transition above will happen with probability:
+            $$P^B[b\lto{a} \phi_{X_0}[\{x'\}]] = P^X[x \lto{a} x']$$
+
+        \end{minipage}
+        \hspace{3em}
+        \begin{minipage}{0.45\textwidth}
+
+            \begin{figure}[H]
+
+                \includesvg[inkscapelatex=false, scale=0.8]{images/eq-classes-y.svg}
+                \centering
+                \caption{The transitions from any element $b \in \phi_{X_1}^{-1}[\{x\}]$, to the entirety of $\phi_{X_1}^{-1}[\{x''\}]$}
+            \end{figure}
+            Let $b$ be one of the red dots pictured
+
+            (i.e. some $b\in B$ s.t. $\phi_{X_1}(b) = x$)
+
+
+            Each transition above will happen with probability:
+            $$P^B[b\lto{a} \phi_{X_1}[\{x'\}]] = P^X[x \lto{a} x']$$
+
+        \end{minipage}
+
+    \end{center}
+    \hspace{10em}
+
+    Now let $C = \{q \mid q B_I x'\}$ be an equivalence class of $B_I$ that includes $x'$.
+
+    So we can see that by summing up instances of the last picture, we get:
+    \begin{figure}[H]
+
+        \includesvg[inkscapelatex=false, scale=0.8]{images/eq-classes-b.svg}
+        \centering
+        \caption{Transitions from any element $b \in \phi_{X_1}^{-1}[\{x\}]$, to $\phi_{X_1}^{-1}[C]$, i.e. anything related to $x'$ }
+    \end{figure}
+    In the figure above, the probability of each of these transitions is $$P^B\left[b\lto{a} \phi_{X_1}^{-1}[C]\right] = P^X[x\lto{a} C]$$
+
+
+
+
+    Likewise the same argument holds when you sum up columns instead, and you get
+    $$P^B\left[b \lto{a} \phi_{X_0}^{-1}[C]\right] = P^X[x \lto{a} C]$$
+
+    Note that because $B_I$ is an equivalence relation, it must be that $\phi_{X_0}^{-1}[C] = \phi_{X_1}^{-1}[C]$.
+
+    % So any two red dots that are in the same row have the same transition probability to $\phi^{-1}_{X_1}[C]$. If they are in the same column, then they have the same probability of going to $\phi^{-1}_{X_0}[C]$. The idea is that you want to prove $x B_I x'' \implies P^X[x \lto{a}C] =P^X[x''\lto{a}C] $.
+\end{expb}
+
+
+\newpage
+\section{More complicated results}
+
+\subsection{Existance of final coalgebra}
+(A slightly more involved result shows how to build a final coalgebra)
+
+\begin{defB}[limit]{Limit}
+    \todo[inline]{Fill in}
+
+\end{defB}
+
+
+\begin{defB}[colimit]{Colimit}
+    \todo[inline]{Fill in}
+
+\end{defB}
+
+
+\begin{defb}{Cochain, Chain}
+    A cochain is a diagram of the form:
+
+
+
+\end{defb}
+
+\begin{defb}{Cochain, Chain}
+    A cochain is a diagram of the form:
+
+
+
+\end{defb}
+%(https://drops.dagstuhl.de/storage/00lipics/lipics-vol029-fsttcs2014/LIPIcs.FSTTCS.2014.403/LIPIcs.FSTTCS.2014.403.pdf)
+\begin{defb}{Constructing the final coalgebra}
+    Let $C$ be a category with terminal object $*$, and limits of all ordinal indexed cochains
+
+    \todo[inline]{Try building final coalgebra inductivly?}
+\end{defb}
+\subsection{Comparing Products and bisimulations (New)}
+
+\end{document}

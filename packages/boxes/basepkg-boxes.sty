@@ -1,0 +1,112 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{basepkg_boxes}[03/08/23 Boxes package]
+
+%------------------------------- Imports ------------------------
+% \RequirePackage{basepkg_boxes}
+\usepackage{packages/boxes/def}
+\usepackage{packages/boxes/res}
+\usepackage{packages/boxes/exp}
+
+\tcbuselibrary{theorems} % theorem boxes, solutions, problems
+\tcbuselibrary{skins} % more options for colors, lines
+\tcbuselibrary{breakable} % breaks along pages
+\tcbuselibrary{raster} % allows for tcbitemize
+
+
+
+
+
+%-------------------------------- Main -------------------------
+\tcbset{highlight math style={enhanced}}
+
+
+
+
+%-------------------------------- Boxes -----------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% \refdefNoLink{tag} shows an inline tcolorbox like: [ DEF | tag ], but not wrapped in \href
+
+
+
+%-------------------------------- Other --------------------------
+\newcommand{\subtitle}[1]{\tcbsubtitle[before skip=\baselineskip]{#1}}
+
+\newcommand{\dline}{\medbreak%
+    \begin{tikzpicture}
+        \path[use as bounding box] (0,0) -- (\linewidth,0);
+        \draw[color=black,dashed,dash phase=2pt]
+        (0.5em-\kvtcb@leftlower-\kvtcb@boxsep,0)--
+        (\linewidth+\kvtcb@rightlower+\kvtcb@boxsep-0.5em,0);
+    \end{tikzpicture}\medbreak%
+}
+
+
+\NewEnviron{niceeq}{
+    \begin{empheq}[box=\tcbhighmath]{align}
+        \BODY
+    \end{empheq}
+}
+
+
+\let\nice\tcbhighmath
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+% \newcommand{\linenote}[1]{\begin{tcolorbox}[enhanced,arc=1mm,boxrule=1.5mm,
+%   frame hidden,colback=blue!10!white,
+%   borderline={0.5mm}{0mm}{gray,dotted}, opacityback=0]\textbf{Note:} #1\end{tcolorbox}}
+
+
+
+% \NewEnviron{dottedbox}{
+%   \begin{tcolorbox}[enhanced,arc=1mm,boxrule=1.5mm,
+%     frame hidden,colback=blue!10!white,
+%     borderline={0.7mm}{0mm}{cyan,dotted}, opacityback=0]
+%       \BODY
+%   \end{tcolorbox}
+% }
+
+
+% \NewEnviron{solidbox}{
+%   \begin{tcolorbox}[enhanced,arc=1mm,boxrule=1.5mm,
+%     frame hidden,colback=blue!10!white,
+%     borderline={0.7mm}{0mm}{black}, opacityback=0]
+%       \BODY
+%   \end{tcolorbox}
+% }
+
+%-------------------------------------Reference defs-----------------------
+

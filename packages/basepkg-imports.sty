@@ -1,0 +1,81 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{basepkg_imports}[03/08/23 Essential imports]
+
+
+% This package contains imports (i.e. packages) that I use for almost every single latex document
+
+%------------------------------------------------ Packages ---------------------------------------
+
+%Boilerplate
+\usepackage{amsmath} % standard package
+\usepackage{amsfonts} % mathcal, mathbb
+\usepackage{amssymb} % more symbols, like \lesssim
+\usepackage{accents} % allows you to put more 
+\usepackage{xcolor} % colors, particularly for lstlistings package (pseudocode)
+\usepackage[backend=biber]{biblatex} % bibliography support
+\usepackage{bbm} % allows for \mathbbm{1}, which looks like what \mathbb{1} should look like.
+\usepackage{stmaryrd} %allows for \mapsfrom
+
+
+%Containerization tools, (boxes, theorems, proofs)
+\usepackage{amsthm} % proof enviorment  
+\usepackage[most]{tcolorbox} %Colored boxes
+\usepackage{empheq} % allows for niceeq to use multiple lines
+
+
+%Images and graphics
+\usepackage{wrapfig} % allows to wrap text around images
+\usepackage{float} % need this for figure[H] (svg files inside tcolorbox)
+\usepackage{svg} % allows to import and process svg files (inkscape)
+%\usepackage{emoji} % Requires LuaTex
+\usepackage{tikz-cd} % Commutative diagrams with tikz
+\usepackage{fontawesome} % icons
+\usepackage{quiver} % better comm diagrams
+%Document formatting
+\usepackage{titling} %maketitle
+\usepackage[shortlabels]{enumitem} % allow for custom items in enumerate, [(a)]
+\usepackage[
+    colorlinks=true,
+    linkcolor=black,
+    urlcolor=blue,
+    citecolor=black,
+    pdfborder={0 0 0}
+]{hyperref} % allows for clickable links
+\usepackage{geometry} % page structure
+\usepackage{import} % allow for writing document chunks in seperate files, then importing them later
+
+
+
+%Workflow and commmands
+\usepackage{environ} % Custom environments
+\usepackage[colorinlistoftodos]{todonotes} %todo
+\usepackage{ifthen} % provides conditonals, used to make better code, see \top in topology package.
+\usepackage{xspace} % For instance if you wanted a command to say \hello -> "hello", it absorbs spaces. Meaning \text{\hello world} -> "helloworld", so \xspace fixes this.s
+%\usepackage{pythontex} % allows for inline python in latex. If you take this out you need to change the settings.JSON file in vscode to not run pythontex and mv the file. Note you need the .pytxcode file to be in the same directory when pythontex runs.
+
+%Pseudocode and algorithms
+\usepackage{algpseudocode} % pseudocode environment
+%\usepackage{algorithm2e} % alternate pseudocode environment
+\usepackage{listings} % python and prettyprinted code environment
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+
+%Common tools
+\usepackage{array} % array environment for equations
+\usepackage{currfile} % get current file name
+%\usepackage[T1]{fontenc} % Don't know what this does
+
+
+%Misc
+\usepackage{centernot} % allows to cross out anything, like \centernot{implies}
+
+
+
+
+
+\ProcessOptions\relax % process options, if any exist
+
+
+% Banned packages (use only if absolutely necissary):
+%\usepackage{mathabx} % more symbols, like \dotdiv (Warning changes all symbols)
