@@ -611,6 +611,7 @@ We will also need this structure:
 
 
 
+
 \section{Slice and product category}
 Later we will use the following constructions:
 
@@ -974,7 +975,23 @@ For question 1, the natural choice for a relation is $\{(\phi_x(b), \phi_y(b) | 
         \arrow["{\phi_Y}", from=3-2, to=3-3]
     \end{tikzcd}\]
 
+\begin{defB}[induced-relation-bisimulation]{Induced Relation for $\catset$ bisimulation}
+    Let $F$ be an endofunctor on $\catset$. For a bisimulation $c_B$ of type given below:
 
+    % https://q.uiver.app/#q=WzAsNixbMSwwLCJCIl0sWzEsMSwiRkIiXSxbMiwwLCJYIl0sWzIsMSwiRlgiXSxbMCwwLCJYIl0sWzAsMSwiRlgiXSxbMCwxLCJjX0IiXSxbMiwzLCJjX3giXSxbNCw1LCJjX1giLDJdLFswLDQsIlxccGhpXzAiLDJdLFswLDIsIlxccGhpXzEiXSxbMSwzLCJGIFxccGhpXzEiLDJdLFsxLDUsIkYgXFxwaGlfMCJdXQ==
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            X \& B \& X \\
+            FX \& FB \& FX
+            \arrow["{c_X}"', from=1-1, to=2-1]
+            \arrow["{\phi_0}"', from=1-2, to=1-1]
+            \arrow["{\phi_1}", from=1-2, to=1-3]
+            \arrow["{c_B}", from=1-2, to=2-2]
+            \arrow["{c_x}", from=1-3, to=2-3]
+            \arrow["{F \phi_0}", from=2-2, to=2-1]
+            \arrow["{F \phi_1}"', from=2-2, to=2-3]
+        \end{tikzcd}\]
+    Let $B_I$ denote the induced relation on $X^2$, namely $\{\phi_X(b), \phi_X(b) | b \in B\}$.
+\end{defB}
 
 For 2, it is a bit more tricky. I think it can be done if you assume that the resulting relation is an equivalence relation.
 
@@ -987,12 +1004,50 @@ We give the formal proof first, then give some intuition.
             \arrow["{\phi_{X_0}}"', from=1-2, to=1-1]
             \arrow["{\phi_{X_1}}", from=1-2, to=1-3]
         \end{tikzcd}\]
-    Such that the induced relation on $X^2$ is an equivalence relation. Then the induced relation is a traditional MDP bisimulation.
+    Such that the induced relation $B_I$ is an equivalence relation. Then $B_I$ is a traditional MDP bisimulation.
 
-    As notation, let $B_I$ be the induced relation on $X^2$ from $B$, namely $\{\phi_X(b)\}$
     \dline
-    \begin{proof}
+    \begin{proof}\hfill
 
+
+        \begin{resb}{Forward direction}
+            WTS $\forall_{x, x'} x B_I x' \implies r^X(x)  = r^X(x') \land \forall_a^A \forall_C^{X/B_I} P^X[x \lto{a} C] = P^X[x' \lto{a} C]$
+
+            Assume $x B_I x'$.
+
+
+            From \refdef{induced-relation-bisimulation}, we have $b \in B$ such that $\phi_0(b) = x$, and $\phi_1(b) = x'$.
+            \begin{align}
+                \implies r^B(b) & = r^X(\phi_0 (b)) = r^X(\phi_1(b)) \\
+                                & = r^X(x) = r^X(x')
+            \end{align}
+            % rewards now equal, now show Probs are too
+
+            Take arbitrary $a \in A$, $C \in X / B_I$. Note $\phi_0^{-1}[C] = \phi_1^{-1}[C]$, because:
+            \begin{resb}{$\phi_0^{-1}[C] = \phi_1^{-1}[C]$}
+                Recall $B_I = \{\phi_0(b), \phi_1(b) | b \in B\}$.
+
+                So $\phi_0(b) \in C \iff \phi_1(b) \in C$. Thus:
+                \begin{align}
+                    \phi_0^{-1}[C] & = \{b \in B | \phi_0(b) \in C\} \\
+                                   & = \{b \in B | \phi_1(b) \in C\} \\
+                                   & = \phi_1^{-1}[C]
+                \end{align}
+            \end{resb}
+
+            Using the above, and \refres{MDP-hom}:
+
+            \begin{align}
+                \forall_c^C & P^B[ b \lto{a} \phi_0^{-1}[\{c\}]] = P^X[x \lto{a} c] \\
+                \implies    & P^B[ b \lto{a} \phi_0^{-1}[C]] = P^X[x \lto{a} C]     \\
+                            & = P^B[ b \lto{a} \phi_1^{-1}[C]] = P^X[x' \lto{a} C]
+            \end{align}
+            Thus $P^X[x \lto{a} C] = P^X[x' \lto{a} C]$, and $r^X(x) = r^X(x')$.
+        \end{resb}
+
+        \begin{resb}{Backward direction} WTS $\forall_{x, x'} x' B_I x \implies r^X(x)  = r^X(x') \land \forall_a^A \forall_C^{X/B_I} P^X[x' \lto{a} C] = P^X[x \lto{a} C]$
+            \todo[inline]{Prove}
+        \end{resb}
     \end{proof}
 \end{resB}
 
@@ -1069,6 +1124,162 @@ We give the formal proof first, then give some intuition.
 
     % So any two red dots that are in the same row have the same transition probability to $\phi^{-1}_{X_1}[C]$. If they are in the same column, then they have the same probability of going to $\phi^{-1}_{X_0}[C]$. The idea is that you want to prove $x B_I x'' \implies P^X[x \lto{a}C] =P^X[x''\lto{a}C] $.
 \end{expb}
+
+
+
+\section{Coalgebraic Behavioral Metrics}
+This section summarizes
+
+\todo[inline]{Reference coalgebraic behavioral metrics paper}
+
+The goal of this section is to define a quantitative notion of bisimulation, namely a bisimulation (pseudo)metric for coalgebras.
+
+The main idea: If you have some pseudometric $d^X$ on $X$, and also a way to lift $d^X$ to a pseudometric $d^{FX}$ on $FX$, then
+
+Essentially the goal is to lift a metric on $X^2$ to a metric on $F(X^2)$.
+
+
+First some review some definitions on pseudometrics, and some notation/assumptions.
+
+Then we cover some category theory definitions that we will use.
+
+\subsection{Metric review and notation}
+\begin{defB}{Pseudometric Space}
+    A pseudometic space is a pair $(X, d^X)$, for a set set $X$ and function $d^X : X \times X \to [0,T]_\R$ for some $T\in \R$, subject to: ($\forall_{x,y}^X$)
+    \begin{itemize}
+        \item (Symmetry) $d^X(x,y) = d^X(y,x)$
+        \item (Triangle Inequality) $d^X(x,z) \le d^X(x,y) + d^X(y,z)$
+        \item (Reflexivity) $d^X(x,x) = 0$
+    \end{itemize}
+
+    \textbf{(Note we are assuming a pseudometric is bounded)}
+\end{defB}
+
+\begin{defB}{Metric}
+    A pseudometric space $(X,d^X)$ is a metric space iff it satisfies Definiteness, i.e.
+    \begin{equation}
+        \forall_{x,y}^X d^X(x,y) \neq 0 \implies d(x,y) > 0
+    \end{equation}
+    i.e. equivalently (under the pseudometric axioms):
+    \begin{equation}
+        d^X(x,y) = 0 \iff x = y
+    \end{equation}
+
+\end{defB}
+
+\begin{defb}{Notation $T$, $F$} For the rest of this section, let $T \in \R$ be some fixed real number, and $F : \catset \to \catset$ be some endofunctor on $\catset$.
+\end{defb}
+\subsection{Categorical Prerequisites}
+
+\begin{defB}{$\catpmet$}
+    Define $\catpmet$ as the category with:
+    \begin{itemize}
+        \item $\Obj (\catpmet) \eqdef $ all pseudo-metric spaces $(X, d^X)$.
+        \item $\Hom (\catpmet) \eqdef$ all nonexpansive functions, i.e. $f: (X, d^X) \to (Y, d^Y)$ where $d^Y \circ (f, f) \le d^X$.
+
+              (here $\le$ between functions is the pointwise order, i.e. $f \le g$ iff $f(x) \le g(x)$ for all $x \in X$)
+
+        \item $\circ$ is the composition of functions.
+        \item $\id_X$ is the identity function on $X$.
+    \end{itemize}
+
+    Note that this is indeed a category, as nonexpansive functions are closed under composition, and the identity function is nonexpansive.
+\end{defB}
+
+
+
+\begin{defB}{Lifting of endofunctor from $\catset$ to $\catpmet$}
+    Let $F : \catset \to \catset$. A lifting of $F$ to $\catpmet$ is a functor $\bar F$ such that TFDC:
+    % https://q.uiver.app/#q=WzAsNCxbMCwxLCJcXGNhdHNldCJdLFswLDAsIlxcY2F0cG1ldCJdLFsxLDAsIlxcY2F0cG1ldCJdLFsxLDEsIlxcY2F0c2V0Il0sWzEsMCwiVSIsMl0sWzAsMywiRiIsMl0sWzEsMiwiXFxiYXIgRiJdLFsyLDMsIlUiXV0=
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            \catpmet \& \catpmet \\
+            \catset \& \catset
+            \arrow["{\bar F}", from=1-1, to=1-2]
+            \arrow["U"', from=1-1, to=2-1]
+            \arrow["U", from=1-2, to=2-2]
+            \arrow["F"', from=2-1, to=2-2]
+        \end{tikzcd}\]
+    (in the category of small categories)
+\end{defB}
+
+
+\subsection{Evaluations}
+Now consider coalgebras on $\catset$.
+
+
+\newcommand{\eval}[0]{\texttt{eval}}
+
+
+We can think of $\catset / [0,T]_\R$ $\left(\text{recall }\refdef{slice-cat}\right)$ as having objects that have a sort of value function $V_X : X \to [0,T]_\R$, which assings a value to each state.
+
+Note that also any pseudometric space $(X,d^X)$ can be thought of as an object in $\catset / [0,T]_\R$, namely $d^X : X\times X \to [0,T]_\R$.
+
+\begin{defB}{Evaluation Function, Evaluation Functor}
+    Given a fixed $\catset$ endofunctor $F$. We want to find a way to lift $F$ to $\catset / [0,T]_\R$:
+    \begin{defb}{Evaluation Function $\eval$}
+        An evaluation function is any $F$ algebra with domain $[0,T]_\R$, i.e. any map:
+        \begin{equation}
+            \eval : F([0,T]_\R) \to [0,T]_\R
+        \end{equation}
+    \end{defb}
+
+    \begin{defb}{Evaluation Functor $\tilde F$}
+        Given a fixed $\eval$, $\tilde F$ is an endofunctor on $\catset / [0,T]_\R$ that takes:
+        \begin{itemize}
+            \item On objects:  $V_X \mapsto \eval \circ FV_X$
+            \item On morphisms: $f \mapsto F f$
+        \end{itemize}
+
+        This means you can lift any diagram in the slice category. Pictorially, this means that you can apply $\tilde F$ everywhere to a diagram:
+        % https://q.uiver.app/#q=WzAsOCxbMCwwLCJYIl0sWzEsMywiWzAsVF1fXFxSIl0sWzUsMCwiRlgiXSxbNiwxLCJGWzAsVF1fXFxSIl0sWzYsMywiWzAsVF1fXFxSIl0sWzcsMCwiRlkiXSxbMiwwLCJZIl0sWzMsMSwiIFxcaHNwYWNlezJlbX1cXG1hcHN0byJdLFswLDEsIlZfWCIsMix7ImN1cnZlIjoyfV0sWzIsMywiVl9YIiwyLHsic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZGFzaGVkIn19fV0sWzIsNCwiXFxlcWRlZiBcXHRpbGRlIEYgVl9YIiwyLHsiY3VydmUiOjJ9XSxbMyw0LCJcXGV2YWwiLDEseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XSxbMiw1LCJcXHRpbGRlIEZmXFxlcWRlZiBGZiJdLFs1LDMsIlZfWSIsMCx7InN0eWxlIjp7ImJvZHkiOnsibmFtZSI6ImRhc2hlZCJ9fX1dLFs1LDQsIlxcZXFkZWYgXFx0aWxkZSBGIFZfWSIsMCx7ImN1cnZlIjotMn1dLFswLDYsImYiXSxbNiwxLCJWX1kiLDAseyJjdXJ2ZSI6LTJ9XV0=
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                X \&\& Y \&\&\& FX \&\& FY \\
+                \&\&\& { \hspace{2em}\mapsto} \&\&\& {F[0,T]_\R} \\
+                \\
+                \& {[0,T]_\R} \&\&\&\&\& {[0,T]_\R}
+                \arrow["f", from=1-1, to=1-3]
+                \arrow["{V_X}"', curve={height=12pt}, from=1-1, to=4-2]
+                \arrow["{V_Y}", curve={height=-12pt}, from=1-3, to=4-2]
+                \arrow["{\tilde Ff\eqdef Ff}", from=1-6, to=1-8]
+                \arrow["{V_X}"', dashed, from=1-6, to=2-7]
+                \arrow["{\eqdef \tilde F V_X}"', curve={height=12pt}, from=1-6, to=4-7]
+                \arrow["{V_Y}", dashed, from=1-8, to=2-7]
+                \arrow["{\eqdef \tilde F V_Y}", curve={height=-12pt}, from=1-8, to=4-7]
+                \arrow["\eval"{description}, dashed, from=2-7, to=4-7]
+            \end{tikzcd}\]
+
+    \end{defb}
+
+\end{defB}
+
+\subsection{Kantorovic Metric}
+
+\begin{defB}{Kantorovic Metric}
+    Given $F$, $\eval$, then for any pseudometric $(X,d)$ define $d_K$:
+    \begin{align}
+        d_{K(X,d^X)}(t_1, t_2) & \eqdef \sup \bigg \{ d^{[0,T]_\R} ( \tilde F f(t_1), \tilde f(t_2)) \bigg | f  : \Hom^{\catpmet}((X,d), ([0,T]_\R, d^{[0,T]_\R})) \bigg\} \\
+                               & = \sup \Bigg \{ \Big | \tilde F V_X(t_1) - \tilde F V_X(t_2) \Big | \bigg | V_X:  X \to [0,T]_\R, \text{ $V_X$ non expansive}\bigg \}
+    \end{align}
+    Pictorially, it is $\sup$ over all non expansive functions $V_X : (X, d^X) \to ([0,T]_\R, d^{[0,T]_\R})$ such that TFDC:
+    % https://q.uiver.app/#q=WzAsNCxbMCwwLCJGWCBcXHRpbWVzIEZYIl0sWzAsMiwiWzAsVF1fXFxSIl0sWzMsMCwiRlswLFRdX1xcUiBcXHRpbWVzIEZbMCxUXV9cXFIiXSxbMywyLCJbMCxUXV9cXFIgXFx0aW1lcyBbMCxUXV9cXFIiXSxbMCwxLCJkX0siLDIseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XSxbMCwyLCIgXFxzdXBfe1ZfWCB9IEZWX1hcXHRpbWVzIEZWX1giLDAseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJzcXVpZ2dseSJ9fX1dLFsyLDMsIlxcZXZhbCJdLFszLDEsImRee1swLFRdX1xcUn0iXV0=
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            {FX \times FX} \&\&\& {F[0,T]_\R \times F[0,T]_\R} \\
+            \\
+            {[0,T]_\R} \&\&\& {[0,T]_\R \times [0,T]_\R}
+            \arrow["{ \sup_{V_X } FV_X\times FV_X}", squiggly, from=1-1, to=1-4]
+            \arrow["{d_K}"', dashed, from=1-1, to=3-1]
+            \arrow["\eval", from=1-4, to=3-4]
+            \arrow["{d^{[0,T]_\R}}", from=3-4, to=3-1]
+        \end{tikzcd}\]
+
+    where $d^{[0,T]_\R}$ is $L1$ distance on $\R$.
+\end{defB}
+
+\begin{defB}{Kantorovich Lifting/Functor}
+    The Kantorovich lifting (functor) of $F: \catset \to \catset$ is $F_K : \catpmet \to \catpmet$ such that $F_K (X,d^X) = (X, d_{K(X,d^X)})$, and $F_K f = Ff$.
+\end{defB}
+
+\todo[inline]{Show examples, in particular on $\Delta$}
 
 
 \newpage
