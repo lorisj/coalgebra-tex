@@ -639,6 +639,22 @@ Later we will use the following constructions:
 
 \end{defB}
 
+\begin{expb}{$\catset / 2$}
+    $\catset / 2$ is the category with:
+    \begin{itemize}
+        \item $\Obj(\catset / 2) \eqdef \{X \mid X \in \Obj(\catset)\}$
+        \item $\Hom(\catset / 2) \eqdef \{m_X : X \to 2 \mid X \in \Obj(\catset)\}$
+        \item $\id_X, \circ$ just like in $\catset$.
+    \end{itemize}
+
+
+    Note that objects in this category are just binary partitions of $\Obj(\catset)$, and morphisms are just functions that preserve the partition.
+
+    In particular if you have an object $m_X : X \to 2$, this induces a partition $X = m_X^{-1}[\{0\}] + m_X^{-1}[\{1\}]$.
+
+    Furthermore any morphism $f: m_X \to m_Y$ must preserve the partition, i.e. $m_Y(f(x)) = m_X(x)$ for all $x \in X$.
+\end{expb}
+
 \begin{defB}[product-cat]{Product Category}
     Let $C$ and $D$ be two categories. Define the product category $C \times D$ as the category with:
 
@@ -649,16 +665,41 @@ Later we will use the following constructions:
 \end{defB}
 
 
+\begin{expb}{$\catset \times \catset$}
+    $\catset \times \catset$ is the category with:
+    \begin{itemize}
+        \item $\Obj(\catset \times \catset) \eqdef $ all $(X,Y)$ where $X, Y \in \Obj(\catset)$.
+        \item $\Hom(\catset \times \catset) \eqdef $ all $(f,g)$ where $f, g \in \Hom(\catset)$.
+        \item $\circ$:  $(f,g) \circ (h,k) \eqdef (f \circ h, g \circ k)$
+        \item $\id_X$: $\id_{(X,Y)} \eqdef(\id_X, \id_Y)$
+    \end{itemize}
+
+\end{expb}
+
+
+
+
 
 
 \section{Bisimulation and Behavioral Equivalence}
 One natural question to answer is given two systems, are they behaviorally equivalent. This question can be formalized by looking at terminal objects in the category of coalgebras.
 
+\begin{defb}{Terminal Coalgebra}
+    Recall \refdef{terminal-obj}.
+
+    Fix a functor $F$.
+    The terminal/final coalgebra is the terminal object in the category of $F$-coalgebras.
+\end{defb}
+
 \begin{expb}{Terminal Coalgebra}
     As it turns out, most categories have a notion of a terminal object. Here we give some examples:
     %https://link.springer.com/chapter/10.1007/BFb0018361
     \begin{expb}{$FX = A \times X$}
-        The final coalgebra consists of $A^\omega$, which can be interpreted as infinite streams with elements of $A$.
+        The final coalgebra consists of $* : A^\omega \to A \times A^\omega$, which maps $(a_0, a_1, \ldots) \mapsto (a_0, (a_1, \ldots))$.
+
+        Any coalgebra $c: X \to A \times X$  has a unique coalgebra morphism $! : c \to *$, namely the map which sends $x$ to the sequence $(a_0, a_1, \ldots ) : A^\omega$ that happens after applying $c$ infinitely often:
+
+        $c(x) = (a_0, x_1), c(x_1) = (a_1, x_2), \ldots$.
     \end{expb}
 
     \begin{expb}{$FX = 2 \times X^A$}
@@ -743,7 +784,7 @@ Suppose now that $c_R : R \to FR$ is a bisimulation between $c_X : X \to FX$, an
     If a coupling $\gamma: FX \times FY \to F(X \times Y)$ exists, then for any two coalgebras $c_x : X \to FX, c_Y : Y \to FY$ we have:
     \begin{itemize}
         \item The product of $c_X, c_Y$ exists in the category of $F$-coalgebras.
-        \item This product $c_{X \times Y} : X \times Y \to F(X \times Y)$
+        \item This product can be of type $c_{X \times Y} : X \times Y \to F(X \times Y)$
     \end{itemize}
     \dline
     \begin{proof}
@@ -779,7 +820,7 @@ Suppose now that $c_R : R \to FR$ is a bisimulation between $c_X : X \to FX$, an
 
 
 
-    Now note that we assume $R$ is a bisimulaiton, so we have TFDC (in $C$)
+    Now note that we assume $c_R$ is a bisimulaiton, so we have TFDC (in $C$)
 
     % https://q.uiver.app/#q=WzAsNixbMSwwLCJSIl0sWzAsMCwiWCJdLFsyLDAsIlkiXSxbMiwxLCJGWSJdLFswLDEsIkZYIl0sWzEsMSwiRlIiXSxbMCwxLCJcXHBoaV9YIiwyXSxbMCwyLCJcXHBoaV9ZIl0sWzAsNSwiY19SIiwyXSxbNSw0LCJGXFxwaGlfWCJdLFs1LDMsIkZcXHBoaV9ZIiwyXSxbMSw0LCJjX1kiLDJdLFsyLDMsImNfWSJdXQ==
     \[\begin{tikzcd}[ampersand replacement=\&]
@@ -794,7 +835,7 @@ Suppose now that $c_R : R \to FR$ is a bisimulation between $c_X : X \to FX$, an
             \arrow["{F\phi_Y}"', from=2-2, to=2-3]
         \end{tikzcd}\]
 
-    Notice, that if we then consider the object $FX \times FY$, this is a product object. So it must have projection maps $\pi_{FX}, \pi_{FY}$. Furthermore, since $X \times Y \lto{\pi_X} X \lto{c_X} FX$ and $X \times Y \lto{\pi_Y} Y \lto{c_Y} FY$, this forms a span of $FX$ and $FY$, so there must be a unique map $\exists ! : X \times Y \to FX \times FY$ such that TFDC:
+    Notice, that if we then consider the object $FX \times FY$, this is a product object in $C$. So it must have projection maps $\pi_{FX}, \pi_{FY}$. Furthermore, since $X \times Y \lto{\pi_X} X \lto{c_X} FX$ and $X \times Y \lto{\pi_Y} Y \lto{c_Y} FY$, this forms a span of $FX$ and $FY$, so there must be a unique map $\exists ! : X \times Y \to FX \times FY$ such that TFDC:
     % https://q.uiver.app/#q=WzAsOCxbMSwxLCJSIl0sWzEsMywiRlIiXSxbMiwyLCJZIl0sWzIsNCwiRlkiXSxbMCwwLCJYIl0sWzAsMiwiRlgiXSxbNSwxLCJYXFx0aW1lcyBZIl0sWzUsMywiRlggXFx0aW1lcyBGWSJdLFswLDIsIlxccGhpX1kiLDFdLFswLDQsIlxccGhpX1giLDFdLFsxLDUsIkZcXHBoaV9YIiwxXSxbMSwzLCJGXFxwaGlfWSIsMV0sWzAsMSwiY19SIiwxLHsibGFiZWxfcG9zaXRpb24iOjMwfV0sWzQsNSwiY19YIiwxLHsibGFiZWxfcG9zaXRpb24iOjMwfV0sWzIsMywiY19ZIiwxLHsibGFiZWxfcG9zaXRpb24iOjMwfV0sWzYsNCwiXFxwaV9YIiwxLHsibGFiZWxfcG9zaXRpb24iOjMwfV0sWzYsMiwiXFxwaV9ZIiwxLHsibGFiZWxfcG9zaXRpb24iOjYwfV0sWzAsNiwiXFxleGlzdHMgISBmIiwxLHsibGFiZWxfcG9zaXRpb24iOjYwLCJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XSxbNyw1LCJcXHBpX3tGWH0iLDEseyJsYWJlbF9wb3NpdGlvbiI6MzB9XSxbNywzLCJcXHBpX3tGWX0iLDFdLFs2LDcsIlxcZXhpc3RzICEgPSBcXGxhbmdsZSBjX3gsIGNfeVxccmFuZ2xlIiwwLHsic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZGFzaGVkIn19fV1d
     \[\begin{tikzcd}[ampersand replacement=\&]
             X \\
@@ -893,7 +934,7 @@ Suppose now that $c_R : R \to FR$ is a bisimulation between $c_X : X \to FX$, an
 
     Thus finally we see that there is a coalgebra $c_{X \times Y} \eqdef \gamma \circ \langle c_x, c_y  \rangle : X \times Y \to F(X\times Y) $, and there are homomorphisms $f : c_R \to c_{X \times Y}$, $\pi_{X} : c_{X \times Y} \to c_X$, and $\pi_Y : c_{X \times Y} \to c_Y$.
 
-    Now to show that the coalgebra homomorphism $f$ (not $f$ on $\catset$, but $f$ as a coalgebra homomorphism) is unique, simply note that any coalgebra homomorphism $p: c_R \to c_{X \times Y}$ must be a map $f : R \to X \times Y$, and since on $\catset$ this is unique, it must also be unique
+    Now to show that the coalgebra homomorphism $f$ (not $f$ on $\catset$, but $f$ as a coalgebra homomorphism) is unique, simply note that any coalgebra homomorphism $p: c_R \to c_{X \times Y}$ must be a map $f : R \to X \times Y$, and since on $\catset$ this is unique, it must also be unique.
 
 \end{resB}
 
@@ -1125,14 +1166,98 @@ We give the formal proof first, then give some intuition.
     % So any two red dots that are in the same row have the same transition probability to $\phi^{-1}_{X_1}[C]$. If they are in the same column, then they have the same probability of going to $\phi^{-1}_{X_0}[C]$. The idea is that you want to prove $x B_I x'' \implies P^X[x \lto{a}C] =P^X[x''\lto{a}C] $.
 \end{expb}
 
+\section{LDBA/LDBW Coalgebraically (new)}
 
+\subsection{Automota review}
+
+
+Recall:
+\begin{defB}[GBA]{Generalized Buchi Automoton (GBA)}
+    A Generlized Buchi Automota (GBA) is a tuple
+
+    \begin{equation}
+        \B = (Q, \Sigma, \delta, \alpha)
+    \end{equation}
+    such that:
+    \begin{itemize}
+        \item $Q$ is a set (states)
+        \item $\Sigma$ is a set (alphabet)
+        \item $\delta : Q \to \Sigma \to 2^Q$ is a transition function (NDTM)
+        \item $\alpha = \{F_1, \ldots F_n\}$ with $F_i : 2^Q$ is a set of accepting conditions
+    \end{itemize}
+\end{defB}
+
+Coalgebraically, we can view a GBA as $F:  Q \to (2^Q)^\Sigma \times 2^n$,
+where the left part yields the next possible states given a letter, and the
+right part gives which (if any) of the acceptance conditions the current state is a part of.
+
+\begin{defB}{Pointed GBA}
+    A pointed GBA is a GBA $\B = (Q, \Sigma, \delta, \alpha)$ along with an initial state $q_0 \in Q$.
+\end{defB}
+
+For now we will consider non pointed GBA, but threre exist pointed coalgebras, so perhaps pointed GBAs reduce to pointed coalgebras.
+
+\begin{defB}{$\inf \tau$ for trajector $\tau$}
+    For a run/trajectory $\tau : (Q \times \Sigma \times Q)$, let:
+    \begin{equation}
+        \inf \tau \eqdef \{ q | (q, \sigma, q') \in \tau \text{ occurs infinitely often in }
+        \tau\}
+    \end{equation}
+\end{defB}
+
+\begin{defb}{Accepting Run}
+    A run $\tau : (Q \times \Sigma \times Q)$ is accepted if $\inf \tau \circ F_i \ne 0$ for all $F_i$.
+\end{defb}
+
+\begin{defB}{Limit Deterministic Buchi Automota (LDBA)}
+    A GBA is a LDBA iff $Q$ can be partitioned $Q = Q_I \sqcup Q_D$ such that:
+    \begin{itemize}
+        \item Tansitions from $Q_D$ must remain in $Q_D$, and must be deterministic:
+
+              For any $q_d :  Q_D$, $\sigma : \Sigma$, $\delta(q_, \sigma) \subseteq Q_D$ and $|\delta(q, \sigma)| = 1$.
+        \item Accepting states are in $Q_D$:
+
+              For any $F_i : \alpha$, $F_i \subseteq Q_D$.
+    \end{itemize}
+
+
+\end{defB}
+
+Coalgebraically this is more tricky. Our goal is to find a functor $F$ such that every $F$-coalgebra can be modeled by an LDBA, and likewise that every LDBA can be modeled by a $F$-coalgebra.
+
+The naiive approach would be something like: $F: Q \to (2^Q)^\Sigma + (Q^\Sigma \times 2^k)$. The problem is enforcing that transitions from $Q_D$ remain in $Q_D$.
+(otherwise you can construct a coalgebra where the output of one of the deterministic transitions is something not in $Q_D$). So we need to enforce that if the coalgebra ``knows'' that the input was in $Q_D$,
+it should only output elements in $Q_D$.
+
+We can model this however by going to $\catset / 2$, i.e. \refdef{slice-cat}. This will consist of
+objects of the form $m_X : X \to 2$ for any set $X$, and morphisms of the form $f: m_X \to m_Y$ which make TFDC:
+
+% https://q.uiver.app/#q=WzAsMyxbMCwwLCJYIl0sWzIsMCwiWSJdLFsxLDEsIjIiXSxbMCwxLCJmIl0sWzAsMiwibV94IiwyXSxbMSwyLCJtX3kiXV0=
+\[\begin{tikzcd}[ampersand replacement=\&]
+        X \&\& Y \\
+        \& 2
+        \arrow["f", from=1-1, to=1-3]
+        \arrow["{m_x}"', from=1-1, to=2-2]
+        \arrow["{m_y}", from=1-3, to=2-2]
+    \end{tikzcd}\]
+
+Note that any object $m_X : X \to 2$ in $\catset / 2$ can be thought of as a partition $X = m_X^{-1}[\{0\}] + m_X^{-1}[\{1\}]$.
+
+Furthermore any morphism $m_X \to m_Y$ must preserve the partition, i.e. $m_X^{-1}[\{0\}] = m_Y^{-1}[\{0\}]$ and $m_X^{-1}[\{1\}] = m_Y^{-1}[\{1\}]$.
+
+
+Equivalently, we can think of $\catset / 2$ as $\catset \times \catset$. Then:
+\begin{defB}{LDBA Functor}
+
+
+\end{defB}
 
 \section{Coalgebraic Behavioral Metrics}
 This section summarizes
 
 \todo[inline]{Reference coalgebraic behavioral metrics paper}
 
-The goal of this section is to define a quantitative notion of bisimulation, namely a bisimulation (pseudo)metric for coalgebras.
+The goal of this section is to define a quantitative notion of bisimulation, namely a bisimulation (pseudo) metric for coalgebras.
 
 The main idea: If you have some pseudometric $d^X$ on $X$, and also a way to lift $d^X$ to a pseudometric $d^{FX}$ on $FX$, then
 
@@ -1261,14 +1386,14 @@ Note that also any pseudometric space $(X,d^X)$ can be thought of as an object i
                                & = \sup \Bigg \{ \Big | \tilde F V_X(t_1) - \tilde F V_X(t_2) \Big | \bigg | V_X:  X \to [0,T]_\R, \text{ $V_X$ non expansive}\bigg \}
     \end{align}
     Pictorially, it is $\sup$ over all non expansive functions $V_X : (X, d^X) \to ([0,T]_\R, d^{[0,T]_\R})$ such that TFDC:
-    % https://q.uiver.app/#q=WzAsNCxbMCwwLCJGWCBcXHRpbWVzIEZYIl0sWzAsMiwiWzAsVF1fXFxSIl0sWzMsMCwiRlswLFRdX1xcUiBcXHRpbWVzIEZbMCxUXV9cXFIiXSxbMywyLCJbMCxUXV9cXFIgXFx0aW1lcyBbMCxUXV9cXFIiXSxbMCwxLCJkX0siLDIseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XSxbMCwyLCIgXFxzdXBfe1ZfWCB9IEZWX1hcXHRpbWVzIEZWX1giLDAseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJzcXVpZ2dseSJ9fX1dLFsyLDMsIlxcZXZhbCJdLFszLDEsImRee1swLFRdX1xcUn0iXV0=
+    % https://q.uiver.app/#q=WzAsNCxbMCwwLCJGWCBcXHRpbWVzIEZYIl0sWzAsMiwiWzAsVF1fXFxSIl0sWzMsMCwiRlswLFRdX1xcUiBcXHRpbWVzIEZbMCxUXV9cXFIiXSxbMywyLCJbMCxUXV9cXFIgXFx0aW1lcyBbMCxUXV9cXFIiXSxbMCwxLCJkX0siLDIseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XSxbMCwyLCIgXFxzdXBfe1ZfWCB9IEZWX1hcXHRpbWVzIEZWX1giLDAseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJzcXVpZ2dseSJ9fX1dLFsyLDMsIlxcZXZhbCBcXHRpbWVzIFxcZXZhbCJdLFszLDEsImRee1swLFRdX1xcUn0iXV0=
     \[\begin{tikzcd}[ampersand replacement=\&]
             {FX \times FX} \&\&\& {F[0,T]_\R \times F[0,T]_\R} \\
             \\
             {[0,T]_\R} \&\&\& {[0,T]_\R \times [0,T]_\R}
             \arrow["{ \sup_{V_X } FV_X\times FV_X}", squiggly, from=1-1, to=1-4]
             \arrow["{d_K}"', dashed, from=1-1, to=3-1]
-            \arrow["\eval", from=1-4, to=3-4]
+            \arrow["{\eval \times \eval}", from=1-4, to=3-4]
             \arrow["{d^{[0,T]_\R}}", from=3-4, to=3-1]
         \end{tikzcd}\]
 
@@ -1280,6 +1405,15 @@ Note that also any pseudometric space $(X,d^X)$ can be thought of as an object i
 \end{defB}
 
 \todo[inline]{Show examples, in particular on $\Delta$}
+
+
+\begin{resb}{Useful results}
+    \begin{enumerate}
+        \item If $(X,d)$ is a pseudometric, then so is $d_K$.
+        \item $F_K$ for a functor $F$ preserves isometries
+        \item
+    \end{enumerate}
+\end{resb}
 
 
 \newpage
@@ -1319,6 +1453,5 @@ Note that also any pseudometric space $(X,d^X)$ can be thought of as an object i
 
     \todo[inline]{Try building final coalgebra inductivly?}
 \end{defb}
-\subsection{Comparing Products and bisimulations (New)}
 
 \end{document}
