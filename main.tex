@@ -1221,6 +1221,17 @@ For now we will consider non pointed GBA, but threre exist pointed coalgebras, s
     \end{itemize}
 
 
+    So the definition of a GBA can be refined for a LDBA to be:
+    \begin{equation}
+        (\Sigma, Q_I\sqcup Q_D, \delta_I, \delta_D, G )
+    \end{equation}
+    where:
+    \begin{itemize}
+        \item $\delta_I  : Q_I \to \Sigma \to 2^{Q_I} \times 2^{Q_D}$
+        \item $\delta_D  : Q_D \to \Sigma \to Q_D$
+        \item $G : Q_D \to 2^k$ (tells you which of the acceptance criteria are met)
+    \end{itemize}
+
 \end{defB}
 
 Coalgebraically this is more tricky. Our goal is to find a functor $F$ such that every $F$-coalgebra can be modeled by an LDBA, and likewise that every LDBA can be modeled by a $F$-coalgebra.
@@ -1246,12 +1257,204 @@ Note that any object $m_X : X \to 2$ in $\catset / 2$ can be thought of as a par
 Furthermore any morphism $m_X \to m_Y$ must preserve the partition, i.e. $m_X^{-1}[\{0\}] = m_Y^{-1}[\{0\}]$ and $m_X^{-1}[\{1\}] = m_Y^{-1}[\{1\}]$.
 
 
-Equivalently, we can think of $\catset / 2$ as $\catset \times \catset$. Then:
-\begin{defB}{LDBA Functor}
+Equivalently, we can think of $\catset / 2$ as $\catset \times \catset$. In particualr, notice that $\catset \times \catset$ is exactly $\catset / 2$, just with objects relabeled.
 
+Namely there is a bijection:
+\begin{resb}{$\catset \times \catset$ is $\catset / 2$}
+    There is a bijective functor $F : \catset \times \catset \to \catset / 2$.
+
+
+    Namely for any $(X,Y) : \Obj(\catset \times \catset)$, define $F$:
+    \begin{itemize}
+        \item On objects:
+              \begin{align}
+                  F(X) & : X + Y \to 2                          \\
+                  F(X) & \eqdef(x : X + Y) \mapsto \begin{cases}
+                                                       0 & x : X \\
+                                                       1 & x : Y
+                                                   \end{cases}
+              \end{align}
+        \item On morphisms (given $(f,g) : (X_0, X_1) \to (Y_0, Y_1)$):
+              \begin{align}
+                  F((f,g)) & : \Big(X_0 + X_1\Big) \to \Big(Y_0 + Y_1\Big) \\
+                  F((f,g)) & \eqdef (x : X_0 + X_1) \mapsto \begin{cases}
+                                                                f(x) & x : X_0 \\
+                                                                g(x) & x : X_1
+                                                            \end{cases}
+              \end{align}
+
+    \end{itemize}
+
+    \dline
+    \begin{proof}
+        To show this is a bijection, define the inverse $G : \catset/2 \to \catset \times \catset$:
+        \begin{itemize}
+            \item On objects:
+                  $G(m_X) \eqdef (m_X^{-1}[\{0\}], m_X^{-1}[\{1\}])  $.
+
+            \item On morphisms:
+                  $G(f : m_X \to m_Y) \eqdef ( f |_{m_{X}^{-1}[\{0\}]}, f |_{m_X^{-1}[\{1\}]})$, i.e. the restriction of $f$ to everything that maps to 0, and to 1.
+        \end{itemize}
+
+        Note that $GF = 1_{\catset \times \catset}$, and likewise $FG = 1_{\catset/2}$ for both objects and morphisms.
+
+
+    \end{proof}
+\end{resb}
+
+(This is called an isomorphism of categories, it essentially means one is just relabeling the other)
+
+This gives a more convient way to package $\catset / 2$, and also gives an easier way to define how functors act on it.
+
+\begin{defB}{LDBA Functor}
+    Consider the category $\catset \times \catset$. Define the LDBA functor such that:
+
+    \begin{itemize}
+        \item On objects:
+              \begin{align}
+                  F(Q_I, Q_D) & \eqdef ((2^{Q_I} \times 2^{Q_D})^\Sigma, Q_D^\Sigma \times 2^k)
+              \end{align}
+
+              Here we can see that an element of $F(X_I, X_D)$ is of the form:
+              \begin{align}
+                  \left[\Big((\sigma : \Sigma) \mapsto (A_\sigma : 2^{Q_I}, B_\sigma : 2^{Q_F})  \Big), \Big((\sigma : \Sigma) \mapsto (\delta : Q_D^\Sigma,G_\sigma : 2^k)\Big)
+                      \right]
+              \end{align}
+
+
+        \item \textbf{On morphisms:}
+              Given a morphism $(f : X_I \to Y_I,\; g : X_D \to Y_D)$, define
+              \begin{align}
+                  F(f, g) & \eqdef \left[\Big(\sigma \mapsto (A_\sigma, B_\sigma)  \Big), \Big(\sigma \mapsto (\delta,G_\sigma)\Big)
+                  \right] : F(X_I, X_D)                                                                                              \\
+                          & \mapsto \left[
+                      \Big(\sigma \mapsto (f[A_\sigma], g[B_\sigma]) \Big), \Big(\sigma \mapsto (g \circ \delta, G_\sigma) \Big)
+                      \right] : F(Y_I, Y_D)
+              \end{align}
+              or equivalently:
+
+              \begin{align}
+                  F(f,g) & \eqdef \left[\Big((f[\cdot], g[\cdot]) \circ (\cdot)\Big) ,   \Big(g\circ (\cdot) , \id_{2^k}\big)  \right]
+              \end{align}
+
+    \end{itemize}
 
 \end{defB}
 
+Notice that because we work on $\catset \times \catset$, and due to the product nature of the functor, we can decompose any LDBA coalgebra:
+
+\begin{resb}{Equivalent LDBA coalgebra}
+    Any LDBA coalgebra $c_Q : Q_I \times Q_D \to ((2^{Q_I} \times 2^{Q_D})^\Sigma, Q_D^\Sigma \times 2^k) $ must consist of two maps:
+
+    (from definition of morphisms on $\catset \times \catset$)
+    \begin{align}
+        c_{Q_I} & : Q_I \to (2^{Q_I} \times 2^{Q_D})^\Sigma \\
+        c_{Q_D} & : Q_D \to (Q_D^\Sigma \times 2^k)
+    \end{align}
+
+    So a LDBA coalgebra can also be defined by $(c_{Q_I}, c_{Q_D})$ with types given above.
+\end{resb}
+
+\begin{resb}{Coalgebraic LDBA model LDBA}
+    There is a (class) bijection between the class of all LDBA and the objects of the category of LDBA-coalgebaras, \textbf{up to an initial state.}
+
+    \dline
+    \begin{proof} The following maps are (class) inverses of each other:
+
+        \begin{itemize}
+            \item (\textbf{LDBA $\to$ Coalgebra}) Given a LDBA (without initial state) $\B =  (\Sigma, Q_I\sqcup Q_D, \delta_I, \delta_D, G)$, you can define a LDBA coalgebra
+                  with:
+                  \begin{itemize}
+                      \item $c_{Q_I} = \delta_I$
+                      \item $c_{Q_D} =  q\mapsto(\delta_D(q),G(q))$
+                  \end{itemize}
+
+            \item (\textbf{Coalgebra $\to$ LDBA}) Given a coalgebra
+                  $(c_{Q_I}, c_{Q_D}) : (Q_I , Q_D) \to F(Q_I, Q_D)$, define a LDBA as:
+                  \begin{align}
+                      (\Sigma, Q_I \sqcup Q_D, c_{Q_I}, \pi_0 \circ c_{Q_D}, \pi_1 \circ c_{Q_D})
+                  \end{align}
+        \end{itemize}
+    \end{proof}
+
+\end{resb}
+
+\begin{resB}{LDBA Homomorphisms}
+    Let:
+    \begin{itemize}
+        \item $c_X = (c_{X_I}, c_{X_D})$ be a LDBA coalgebra $: (X_I,X_D) \to F(X_I, X_D)$.
+
+              Let $(X_I \sqcup X_D, \delta_{X_I}, \delta_{X_D}, G_{X})$ be the corresponding LDBA.
+
+        \item $c_Y = (c_{Y_I}, c_{Y_D})$ be a LDBA coalgebra $: (Y_I, Y_D) \to F(Y_I , Y_D)$
+
+              Let $(X_I \sqcup X_D, \delta_{X_I}, \delta_{X_D}, G_{X})$ be the corresponding LDBA.
+    \end{itemize}
+    Then a coalgbra homomorphism $\phi = (\phi_I, \phi_D) : c_X \to c_Y$ is:
+
+    \dline
+    \begin{proof}
+        $\phi$ will make TFDC:
+        % https://q.uiver.app/#q=WzAsNCxbMCwwLCIoWF9JLFhfRCkiXSxbMiwwLCIoWV9JLFlfRCkiXSxbMCwyLCJGKFhfSSxYX0QpIl0sWzIsMiwiRihZX0ksWV9EKSJdLFswLDEsIihcXHBoaV9JLFxccGhpX0QpIl0sWzIsMywiRihcXHBoaV9JLCBcXHBoaV9EKSJdLFswLDIsIihjX3tYX0l9LCBjX3tYX0R9KSIsMl0sWzEsMywiKGNfe1lfSX0sIGNfe1lfRH0pIl1d
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                {(X_I,X_D)} \&\& {(Y_I,Y_D)} \\
+                \\
+                {F(X_I,X_D)} \&\& {F(Y_I,Y_D)}
+                \arrow["{(\phi_I,\phi_D)}", from=1-1, to=1-3]
+                \arrow["{(c_{X_I}, c_{X_D})}"', from=1-1, to=3-1]
+                \arrow["{(c_{Y_I}, c_{Y_D})}", from=1-3, to=3-3]
+                \arrow["{F(\phi_I, \phi_D)}", from=3-1, to=3-3]
+            \end{tikzcd}\]
+        which commutes iff both of the following commute:
+
+
+        \begin{minipage}{0.45\textwidth}
+            % https://q.uiver.app/#q=WzAsNCxbMCwwLCJYX0kiXSxbMiwwLCJZX0kiXSxbMCwyLCIoMl57WF9JfVxcdGltZXMgMl57WF9EfSleXFxTaWdtYSJdLFsyLDIsIigyXntZX0l9XFx0aW1lcyAyXntZX0R9KV5cXFNpZ21hIl0sWzAsMSwiXFxwaGlfSSJdLFswLDIsImNfe1hfSX0iLDJdLFsxLDMsImNfe1lfSX0iXSxbMiwzLCIoXFxwaGlfSVtcXGNkb3RdLCBcXHBoaV9EW1xcY2RvdF0pIFxcY2lyYyAoXFxjZG90KSIsMl1d
+            \[\begin{tikzcd}[ampersand replacement=\&]
+                    {X_I} \&\& {Y_I} \\
+                    \\
+                    {(2^{X_I}\times 2^{X_D})^\Sigma} \&\& {(2^{Y_I}\times 2^{Y_D})^\Sigma}
+                    \arrow["{\phi_I}", from=1-1, to=1-3]
+                    \arrow["{c_{X_I}}"', from=1-1, to=3-1]
+                    \arrow["{c_{Y_I}}", from=1-3, to=3-3]
+                    \arrow["{(\phi_I[\cdot], \phi_D[\cdot]) \circ (\cdot)}"', from=3-1, to=3-3]
+                \end{tikzcd}\]
+        \end{minipage}
+        \begin{minipage}{0.45\textwidth}
+            \vspace{1em}
+            % https://q.uiver.app/#q=WzAsNCxbMCwwLCJYX0QiXSxbMiwwLCJZX0QiXSxbMCwyLCIoWF9EXlxcU2lnbWEgXFx0aW1lcyAyXmspIl0sWzIsMiwiKFlfRF5cXFNpZ21hIFxcdGltZXMgMl5rKSJdLFswLDEsIlxccGhpX0QiXSxbMCwyLCJjX3tYX0R9IiwyXSxbMSwzLCJjX3tZX0R9Il0sWzIsMywiIChcXHBoaV9EIFxcY2lyYyAoXFxjZG90KSwgXFxpZF97Ml5rfSkiLDJdXQ==
+            \[\begin{tikzcd}[ampersand replacement=\&]
+                    {X_D} \&\& {Y_D} \\
+                    \\
+                    {(X_D^\Sigma \times 2^k)} \&\& {(Y_D^\Sigma \times 2^k)}
+                    \arrow["{\phi_D}", from=1-1, to=1-3]
+                    \arrow["{c_{X_D}}"', from=1-1, to=3-1]
+                    \arrow["{c_{Y_D}}", from=1-3, to=3-3]
+                    \arrow["{ (\phi_D \circ (\cdot), \id_{2^k})}"', from=3-1, to=3-3]
+                \end{tikzcd}\]
+        \end{minipage}
+
+
+
+        \begin{align*}
+            \text{LHS Commutes} & \iff (\phi_I[\cdot], \phi_D[\cdot]) \circ c_{X_I} = c_{Y_I} \circ \phi_I                               \\
+                                & \iff \forall_{x_I}^{X_I} (\phi_I[\cdot], \phi_D[\cdot]) \circ c_{X_I}(x_I) = c_{Y_I} \circ \phi_I(x_I) \\
+                                & \iff \forall_{x_I}^{X_I}
+        \end{align*}
+
+
+        \begin{align*}
+            \text{RHS commutes} & \iff\Big(\phi_D \circ (\cdot), \id_{2^k}\Big)\circ c_{X_D} = c_{Y_D} \circ \phi_D                                \\
+                                & \iff \forall_{x_D}^{X_D} \Big(\phi_D \circ (\cdot), \id_{2^k}\Big)\circ c_{X_D}(x_D) = c_{Y_D} \circ \phi_D(x_D)
+        \end{align*}
+    \end{proof}
+\end{resB}
+
+
+
+
+
+\newpage
 \section{Coalgebraic Behavioral Metrics}
 This section summarizes
 
