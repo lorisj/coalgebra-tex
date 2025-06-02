@@ -747,10 +747,9 @@ There are two notions of coalgebraic bisimulation that we cover:
 \end{defB}
 Note that the two are related. In fact for most common functors (any functor that preserves weak pullbacks) AM Bisimulation is weaker than Behavioral equivalence.
 
-The result is a bit more complicated, but can be found here \refres{compare-am-and-beh-equiv}.
+The result is a bit more complicated, but can be found here \refres{AM-vs-beh-equiv}.
 
 
-The following result is a bit more complicated but may be useful.
 
 
 \newpage
@@ -1765,7 +1764,149 @@ Note that also any pseudometric space $(X,d^X)$ can be thought of as an object i
 \end{defB}
 
 \subsection{Comparing Bisimulation}
-\begin{resB}[compare-am-and-beh-equiv]{AM Bisimulation is weaker than Behavioral Equivalence}
+First we will need the following result:
+
+\begin{defb}{Weak pullback preserving functor}
+    Let $F : C \to D$ be a functor.
+
+    $F$ preserves weak pullbacks iff for any pullback
+    % https://q.uiver.app/#q=WzAsNCxbMCwwLCJQIl0sWzAsMSwiWCJdLFsxLDAsIlkiXSxbMSwxLCJaIl0sWzIsMywiXFxwaGlfWSJdLFsxLDMsIlxccGhpX1giLDJdLFswLDEsInBfWCIsMl0sWzAsMiwicF9ZIl1d
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            P \& Y \\
+            X \& Z
+            \arrow["{p_Y}", from=1-1, to=1-2]
+            \arrow["{p_X}"', from=1-1, to=2-1]
+            \arrow["{\phi_Y}", from=1-2, to=2-2]
+            \arrow["{\phi_X}"', from=2-1, to=2-2]
+        \end{tikzcd}\]
+
+    we have that the following commutative diagram is also a pullback of cospan $FX \lto{F\phi_X} FZ \lfrom{F\phi_Y} FY$:
+    % https://q.uiver.app/#q=WzAsNCxbMCwwLCJGUCJdLFswLDEsIkZYIl0sWzEsMCwiRlkiXSxbMSwxLCJGWiJdLFsyLDMsIkZcXHBoaV9ZIl0sWzEsMywiRlxccGhpX1giLDJdLFswLDEsIkZwX1giLDJdLFswLDIsIkZwX1kiXV0=
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            FP \& FY \\
+            FX \& FZ
+            \arrow["{Fp_Y}", from=1-1, to=1-2]
+            \arrow["{Fp_X}"', from=1-1, to=2-1]
+            \arrow["{F\phi_Y}", from=1-2, to=2-2]
+            \arrow["{F\phi_X}"', from=2-1, to=2-2]
+        \end{tikzcd}\]
+
+\end{defb}
+
+
+\begin{resb}{Weak pullbacks on $F$-coalgebras}
+    Let $C$ be a category with weak pullbacks.
+
+    Suppose endofunctor $F: C \to C$ preserves weak pullbacks.
+
+    Then the category of $F$ coalgebras has weak pullbacks.
+    \dline
+
+    % \begin{proof}
+    Suppose you have a cospan $c_X \lto{\phi_X} c_Z \lfrom{\phi_Y} c_Y$, where $c_X : X \to FX$, $c_Y : Y \to FY$, $c_Z : Z \to FZ$.
+
+    Becasue $C$ has weak pullbacks, take $(P, p_X : P \to X, p_Y : P \to Y)$ to be the pullback of
+
+    $X \lto{\phi_X} Z \lfrom{\phi_Y} Y$. Using the definition of coalgebra homomorphisms, we get TFDC:
+    % https://q.uiver.app/#q=WzAsNyxbMCwwLCJYIl0sWzIsMiwiWiJdLFs0LDQsIlkiXSxbMCwyLCJGWCJdLFsyLDQsIkZaIl0sWzQsNiwiRlkiXSxbNSwwLCJQIl0sWzAsMywiY19YIiwyXSxbMSw0LCJjX1oiLDFdLFsyLDUsImNfWSIsMl0sWzMsNCwiRiBcXHBoaV9YIiwxXSxbMCwxLCJcXHBoaV9YIiwxXSxbMiwxLCJcXHBoaV9ZIiwxXSxbNSw0LCJGXFxwaGlfWSIsMV0sWzYsMCwicF9YIiwxXSxbNiwyXV0=
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            X \&\&\&\&\& P \\
+            \\
+            FX \&\& Z \\
+            \\
+            \&\& FZ \&\& Y \\
+            \\
+            \&\&\&\& FY
+            \arrow["{c_X}"', from=1-1, to=3-1]
+            \arrow["{\phi_X}"{description}, from=1-1, to=3-3]
+            \arrow["{p_X}"{description}, from=1-6, to=1-1]
+            \arrow[from=1-6, to=5-5]
+            \arrow["{F \phi_X}"{description}, from=3-1, to=5-3]
+            \arrow["{c_Z}"{description}, from=3-3, to=5-3]
+            \arrow["{\phi_Y}"{description}, from=5-5, to=3-3]
+            \arrow["{c_Y}"', from=5-5, to=7-5]
+            \arrow["{F\phi_Y}"{description}, from=7-5, to=5-3]
+        \end{tikzcd}\]
+
+    Then because $F$ preserves weak pullbacks, we can add the pullback $(FP, Fp_X : FP \to FX, Fp_Y : FP \to FY)$. Then notice that $c_X \circ p_X : P \to FX$, and $c_Y \circ p_Y : P \to FY$.
+
+    So becasue $FP$ is a pullback, there must be a map $f : P \to FP$. As a diagram, this means TFDC:
+    % https://q.uiver.app/#q=WzAsOCxbMCwwLCJYIl0sWzIsMiwiWiJdLFs0LDQsIlkiXSxbMCwyLCJGWCJdLFsyLDQsIkZaIl0sWzQsNiwiRlkiXSxbNSwyLCJGUCJdLFs1LDAsIlAiXSxbMCwzLCJjX1giLDJdLFsxLDQsImNfWiIsMV0sWzIsNSwiY19ZIiwyXSxbMyw0LCJGIFxccGhpX1giLDFdLFswLDEsIlxccGhpX1giLDFdLFsyLDEsIlxccGhpX1kiLDFdLFs1LDQsIkZcXHBoaV9ZIiwxXSxbNiwzLCJGcF9YIiwxXSxbNiw1LCJGcF9ZIiwxXSxbNywwLCJwX1giLDFdLFs3LDJdLFs3LDYsIlxcZXhpc3RzICBjX1AiLDEseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XV0=
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            X \&\&\&\&\& P \\
+            \\
+            FX \&\& Z \&\&\& FP \\
+            \\
+            \&\& FZ \&\& Y \\
+            \\
+            \&\&\&\& FY
+            \arrow["{c_X}"', from=1-1, to=3-1]
+            \arrow["{\phi_X}"{description}, from=1-1, to=3-3]
+            \arrow["{p_X}"{description}, from=1-6, to=1-1]
+            \arrow["{\exists  c_P}"{description}, dashed, from=1-6, to=3-6]
+            \arrow[from=1-6, to=5-5]
+            \arrow["{F \phi_X}"{description}, from=3-1, to=5-3]
+            \arrow["{c_Z}"{description}, from=3-3, to=5-3]
+            \arrow["{Fp_X}"{description}, from=3-6, to=3-1]
+            \arrow["{Fp_Y}"{description}, from=3-6, to=7-5]
+            \arrow["{\phi_Y}"{description}, from=5-5, to=3-3]
+            \arrow["{c_Y}"', from=5-5, to=7-5]
+            \arrow["{F\phi_Y}"{description}, from=7-5, to=5-3]
+        \end{tikzcd}\]
+    Thus in the category of coalgebras:
+    % https://q.uiver.app/#q=WzAsNCxbMSwwLCJjX1AiXSxbMCwxLCJjX1giXSxbMSwyLCJjX1oiXSxbMiwxLCJjX1kiXSxbMCwxLCJwX1giLDJdLFswLDMsInBfWSJdLFsxLDIsIlxccGhpX1giLDJdLFszLDIsIlxccGhpX1kiXV0=
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            \& {c_P} \\
+            {c_X} \&\& {c_Y} \\
+            \& {c_Z}
+            \arrow["{p_X}"', from=1-2, to=2-1]
+            \arrow["{p_Y}", from=1-2, to=2-3]
+            \arrow["{\phi_X}"', from=2-1, to=3-2]
+            \arrow["{\phi_Y}", from=2-3, to=3-2]
+        \end{tikzcd}\]
+    Now take any other coalgebra $c_Q : Q \to FQ$, with homomorphisms $q_X : c_Q \to c_X$, and $q_Y : c_Q \to c_Y$.
+
+    Because $P$ is a pullback, there must exist some $g : Q \to P$ in the diagram below, that commutes with the pullback square $(P,X,Y,Z)$.
+
+    \todo[inline]{finish. I think this works, $g$ must exist, then just need to figure out why/if the $Fg$ part works.}
+
+    \newpage
+
+
+    % https://q.uiver.app/#q=WzAsMTAsWzAsMiwiWCJdLFsyLDQsIloiXSxbNCw2LCJZIl0sWzAsNCwiRlgiXSxbMiw2LCJGWiJdLFs0LDgsIkZZIl0sWzgsMCwiUSJdLFs4LDIsIkZRIl0sWzUsNCwiRlAiXSxbNSwyLCJQIl0sWzAsMywiY19YIiwyXSxbMSw0LCJjX1oiLDFdLFsyLDUsImNfWSIsMl0sWzMsNCwiRiBcXHBoaV9YIiwxXSxbMCwxLCJcXHBoaV9YIiwxXSxbMiwxLCJcXHBoaV9ZIiwxXSxbNSw0LCJGXFxwaGlfWSIsMV0sWzYsMCwicV9YIiwxLHsibGFiZWxfcG9zaXRpb24iOjIwLCJjdXJ2ZSI6Mn1dLFs2LDIsInFfWSIsMSx7ImxhYmVsX3Bvc2l0aW9uIjoyMCwiY3VydmUiOi00fV0sWzcsMywiRnFfWCIsMSx7ImxhYmVsX3Bvc2l0aW9uIjoyMCwiY3VydmUiOjJ9XSxbNiw3LCJjX1EiXSxbOCwzLCJGcF9YIiwxXSxbOCw1LCJGcF9ZIiwxXSxbOSwwLCJwX1giLDFdLFs5LDJdLFs5LDgsIlxcZXhpc3RzICBjX1AiLDEseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XSxbNiw5LCJcXGV4aXN0cyBnIiwxLHsic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZGFzaGVkIn19fV0sWzcsNSwiRnFfWSIsMSx7ImN1cnZlIjotNH1dLFs3LDgsIkZnIiwxXV0=
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            \&\&\&\&\&\&\&\& Q \\
+            \\
+            X \&\&\&\&\& P \&\&\& FQ \\
+            \\
+            FX \&\& Z \&\&\& FP \\
+            \\
+            \&\& FZ \&\& Y \\
+            \\
+            \&\&\&\& FY
+            \arrow["{q_X}"{description, pos=0.2}, curve={height=12pt}, from=1-9, to=3-1]
+            \arrow["{\exists g}"{description}, dashed, from=1-9, to=3-6]
+            \arrow["{c_Q}", from=1-9, to=3-9]
+            \arrow["{q_Y}"{description, pos=0.2}, curve={height=-24pt}, from=1-9, to=7-5]
+            \arrow["{c_X}"', from=3-1, to=5-1]
+            \arrow["{\phi_X}"{description}, from=3-1, to=5-3]
+            \arrow["{p_X}"{description}, from=3-6, to=3-1]
+            \arrow["{\exists  c_P}"{description}, dashed, from=3-6, to=5-6]
+            \arrow[from=3-6, to=7-5]
+            \arrow["{Fq_X}"{description, pos=0.2}, curve={height=12pt}, from=3-9, to=5-1]
+            \arrow["Fg"{description}, from=3-9, to=5-6]
+            \arrow["{Fq_Y}"{description}, curve={height=-24pt}, from=3-9, to=9-5]
+            \arrow["{F \phi_X}"{description}, from=5-1, to=7-3]
+            \arrow["{c_Z}"{description}, from=5-3, to=7-3]
+            \arrow["{Fp_X}"{description}, from=5-6, to=5-1]
+            \arrow["{Fp_Y}"{description}, from=5-6, to=9-5]
+            \arrow["{\phi_Y}"{description}, from=7-5, to=5-3]
+            \arrow["{c_Y}"', from=7-5, to=9-5]
+            \arrow["{F\phi_Y}"{description}, from=9-5, to=7-3]
+        \end{tikzcd}\]
+    % \end{proof}
+\end{resb}
+\begin{resB}[AM-vs-beh-equiv]{AM Bisimulation is weaker than Behavioral Equivalence}
     Suppose $F : C \to C$ preserves weak pullbacks, and $C$ has weak pullbacks. Then for any AM bisimulation $c_X \lfrom{\phi_X} c_R \lto{\phi_Y} c_Y$ there is a behavioral equivalence.
 
 
@@ -1774,115 +1915,7 @@ Note that also any pseudometric space $(X,d^X)$ can be thought of as an object i
     % \begin{proof} \hfill
 
     We will use the following:
-    \begin{resb}{Weak pullbacks on $F$-coalgebras}
-        Let $C$ be a category with weak pullbacks.
 
-        Suppose endofunctor $F: C \to C$ preserves weak pullbacks.
-
-        Then the category of $F$ coalgebras has weak pullbacks.
-        \dline
-
-        % \begin{proof}
-        Suppose you have a cospan $c_X \lto{\phi_X} c_Z \lfrom{\phi_Y} c_Y$, where $c_X : X \to FX$, $c_Y : Y \to FY$, $c_Z : Z \to FZ$.
-
-        Becasue $C$ has weak pullbacks, take $(P, p_X : P \to X, p_Y : P \to Y)$ to be the pullback of
-
-        $X \lto{\phi_X} Z \lfrom{\phi_Y} Y$. Using the definition of coalgebra homomorphisms, we get TFDC:
-        % https://q.uiver.app/#q=WzAsNyxbMCwyLCJYIl0sWzEsMiwiWiJdLFsyLDIsIlkiXSxbMCwzLCJGWCJdLFsxLDMsIkZaIl0sWzIsMywiRlkiXSxbMywwLCJQIl0sWzAsMywiY19YIiwyXSxbMSw0LCJjX1oiLDFdLFsyLDUsImNfWSIsMl0sWzMsNCwiRiBcXHBoaV9YIiwyXSxbMCwxLCJcXHBoaV9YIl0sWzIsMSwiXFxwaGlfWSIsMl0sWzUsNCwiRlxccGhpX1kiXSxbNiwwLCJwX1giLDIseyJjdXJ2ZSI6MX1dLFs2LDIsInBfWSJdXQ==
-        \[\begin{tikzcd}[ampersand replacement=\&]
-                \&\&\& P \\
-                \\
-                X \& Z \& Y \\
-                FX \& FZ \& FY
-                \arrow["{p_X}"', curve={height=6pt}, from=1-4, to=3-1]
-                \arrow["{p_Y}", from=1-4, to=3-3]
-                \arrow["{\phi_X}", from=3-1, to=3-2]
-                \arrow["{c_X}"', from=3-1, to=4-1]
-                \arrow["{c_Z}"{description}, from=3-2, to=4-2]
-                \arrow["{\phi_Y}"', from=3-3, to=3-2]
-                \arrow["{c_Y}"', from=3-3, to=4-3]
-                \arrow["{F \phi_X}"', from=4-1, to=4-2]
-                \arrow["{F\phi_Y}", from=4-3, to=4-2]
-            \end{tikzcd}\]
-
-        Then because $F$ preserves weak pullbacks, we can add the pullback $(FP, Fp_X : FP \to FX, Fp_Y : FP \to FY)$. Then notice that $c_X \circ p_X : P \to FX$, and $c_Y \circ p_Y : P \to FY$.
-
-        So becasue $FP$ is a pullback, there must be a map $f : P \to FP$. As a diagram, this means TFDC:
-        % https://q.uiver.app/#q=WzAsOCxbMCwwLCJYIl0sWzIsMiwiWiJdLFs0LDQsIlkiXSxbMCwyLCJGWCJdLFsyLDQsIkZaIl0sWzQsNiwiRlkiXSxbNSwyLCJGUCJdLFs1LDAsIlAiXSxbMCwzLCJjX1giLDJdLFsxLDQsImNfWiIsMV0sWzIsNSwiY19ZIiwyXSxbMyw0LCJGIFxccGhpX1giLDFdLFswLDEsIlxccGhpX1giLDFdLFsyLDEsIlxccGhpX1kiLDFdLFs1LDQsIkZcXHBoaV9ZIiwxXSxbNiwzLCJGcF9YIiwxXSxbNiw1LCJGcF9ZIiwxXSxbNywwLCJwX1giLDFdLFs3LDJdLFs3LDYsIlxcZXhpc3RzICBjX1AiLDEseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XV0=
-        \[\begin{tikzcd}[ampersand replacement=\&]
-                X \&\&\&\&\& P \\
-                \\
-                FX \&\& Z \&\&\& FP \\
-                \\
-                \&\& FZ \&\& Y \\
-                \\
-                \&\&\&\& FY
-                \arrow["{c_X}"', from=1-1, to=3-1]
-                \arrow["{\phi_X}"{description}, from=1-1, to=3-3]
-                \arrow["{p_X}"{description}, from=1-6, to=1-1]
-                \arrow["{\exists  c_P}"{description}, dashed, from=1-6, to=3-6]
-                \arrow[from=1-6, to=5-5]
-                \arrow["{F \phi_X}"{description}, from=3-1, to=5-3]
-                \arrow["{c_Z}"{description}, from=3-3, to=5-3]
-                \arrow["{Fp_X}"{description}, from=3-6, to=3-1]
-                \arrow["{Fp_Y}"{description}, from=3-6, to=7-5]
-                \arrow["{\phi_Y}"{description}, from=5-5, to=3-3]
-                \arrow["{c_Y}"', from=5-5, to=7-5]
-                \arrow["{F\phi_Y}"{description}, from=7-5, to=5-3]
-            \end{tikzcd}\]
-        Thus in the category of coalgebras:
-        % https://q.uiver.app/#q=WzAsNCxbMSwwLCJjX1AiXSxbMCwxLCJjX1giXSxbMSwyLCJjX1oiXSxbMiwxLCJjX1kiXSxbMCwxLCJwX1giLDJdLFswLDMsInBfWSJdLFsxLDIsIlxccGhpX1giLDJdLFszLDIsIlxccGhpX1kiXV0=
-        \[\begin{tikzcd}[ampersand replacement=\&]
-                \& {c_P} \\
-                {c_X} \&\& {c_Y} \\
-                \& {c_Z}
-                \arrow["{p_X}"', from=1-2, to=2-1]
-                \arrow["{p_Y}", from=1-2, to=2-3]
-                \arrow["{\phi_X}"', from=2-1, to=3-2]
-                \arrow["{\phi_Y}", from=2-3, to=3-2]
-            \end{tikzcd}\]
-        Now take any other coalgebra $c_Q : Q \to FQ$, with homomorphisms $q_X : c_Q \to c_X$, and $q_Y : c_Q \to c_Y$.
-
-        Because $P$ is a pullback, there must exist some $g : Q \to P$ in the diagram below, that commutes with the pullback square $(P,X,Y,Z)$.
-
-        \todo[inline]{finish}
-
-        \newpage
-
-
-        % https://q.uiver.app/#q=WzAsMTAsWzAsMiwiWCJdLFsyLDQsIloiXSxbNCw2LCJZIl0sWzAsNCwiRlgiXSxbMiw2LCJGWiJdLFs0LDgsIkZZIl0sWzgsMCwiUSJdLFs4LDIsIkZRIl0sWzUsNCwiRlAiXSxbNSwyLCJQIl0sWzAsMywiY19YIiwyXSxbMSw0LCJjX1oiLDFdLFsyLDUsImNfWSIsMl0sWzMsNCwiRiBcXHBoaV9YIiwxXSxbMCwxLCJcXHBoaV9YIiwxXSxbMiwxLCJcXHBoaV9ZIiwxXSxbNSw0LCJGXFxwaGlfWSIsMV0sWzYsMCwicV9YIiwxLHsibGFiZWxfcG9zaXRpb24iOjIwLCJjdXJ2ZSI6Mn1dLFs2LDIsInFfWSIsMSx7ImxhYmVsX3Bvc2l0aW9uIjoyMCwiY3VydmUiOi00fV0sWzcsMywiRnFfWCIsMSx7ImxhYmVsX3Bvc2l0aW9uIjoyMCwiY3VydmUiOjJ9XSxbNiw3LCJjX1EiXSxbOCwzLCJGcF9YIiwxXSxbOCw1LCJGcF9ZIiwxXSxbOSwwLCJwX1giLDFdLFs5LDJdLFs5LDgsIlxcZXhpc3RzICBjX1AiLDEseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XSxbNiw5LCJcXGV4aXN0cyBnIiwxLHsic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZGFzaGVkIn19fV0sWzcsNSwiRnFfWSIsMSx7ImN1cnZlIjotNH1dLFs3LDgsIkZnIiwxXV0=
-        \[\begin{tikzcd}[ampersand replacement=\&]
-                \&\&\&\&\&\&\&\& Q \\
-                \\
-                X \&\&\&\&\& P \&\&\& FQ \\
-                \\
-                FX \&\& Z \&\&\& FP \\
-                \\
-                \&\& FZ \&\& Y \\
-                \\
-                \&\&\&\& FY
-                \arrow["{q_X}"{description, pos=0.2}, curve={height=12pt}, from=1-9, to=3-1]
-                \arrow["{\exists g}"{description}, dashed, from=1-9, to=3-6]
-                \arrow["{c_Q}", from=1-9, to=3-9]
-                \arrow["{q_Y}"{description, pos=0.2}, curve={height=-24pt}, from=1-9, to=7-5]
-                \arrow["{c_X}"', from=3-1, to=5-1]
-                \arrow["{\phi_X}"{description}, from=3-1, to=5-3]
-                \arrow["{p_X}"{description}, from=3-6, to=3-1]
-                \arrow["{\exists  c_P}"{description}, dashed, from=3-6, to=5-6]
-                \arrow[from=3-6, to=7-5]
-                \arrow["{Fq_X}"{description, pos=0.2}, curve={height=12pt}, from=3-9, to=5-1]
-                \arrow["Fg"{description}, from=3-9, to=5-6]
-                \arrow["{Fq_Y}"{description}, curve={height=-24pt}, from=3-9, to=9-5]
-                \arrow["{F \phi_X}"{description}, from=5-1, to=7-3]
-                \arrow["{c_Z}"{description}, from=5-3, to=7-3]
-                \arrow["{Fp_X}"{description}, from=5-6, to=5-1]
-                \arrow["{Fp_Y}"{description}, from=5-6, to=9-5]
-                \arrow["{\phi_Y}"{description}, from=7-5, to=5-3]
-                \arrow["{c_Y}"', from=7-5, to=9-5]
-                \arrow["{F\phi_Y}"{description}, from=9-5, to=7-3]
-            \end{tikzcd}\]
-        % \end{proof}
-    \end{resb}
     % https://q.uiver.app/#q=WzAsNCxbMCwxLCJjX1giXSxbMSwwLCJjX1kiXSxbMSwxLCIqIl0sWzAsMCwiXFxleGlzdHMgY19SIl0sWzAsMl0sWzEsMl0sWzMsMF0sWzMsMV1d
     \[\begin{tikzcd}[ampersand replacement=\&]
             {\exists c_R} \& {c_Y} \\
