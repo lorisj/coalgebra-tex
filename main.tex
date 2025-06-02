@@ -710,12 +710,51 @@ One natural question to answer is given two systems, are they behaviorally equiv
 
 \end{expb}
 
-\todo[inline]{give bisimulation definition, coinduction, examples}
 
 
 
+There are two notions of coalgebraic bisimulation that we cover:
 
-\subsection{Coupling}
+\begin{defB}[beq-bisimulation]{Behavioral Equivalence Bisimilarity ($\catset$)}
+    Define the bisimilarity relation between two $F$-coalgebras:
+    $$c_X : X \to FX$$
+    $$c_Y : Y \to FY$$
+
+    as a relation on $X \times Y$ given by:
+    \begin{align}
+        x \sim y \iff [x]_{\texttt{final}(c_X)} = [y]_{\texttt{final}(c_Y)}
+    \end{align}
+    where $[\cdot]_{\texttt{final}(c_X)}$ and $[\cdot]_{\texttt{final}(c_Y)}$ are the unique homomorphisms to the final $F$-coalgebra from $c_X$ and $c_Y$.
+
+
+\end{defB}
+
+\begin{resb}{Behavioral Equivalence on a set is an equivalence relation}
+    If $X = Y$ and $c_X = c_Y$, then this will be an equivalence relation.
+\end{resb}
+
+\begin{defB}[AM-bisimulation]{Aczel-Mendler/Span Bisimulation}
+    An Azcel Mendler bisimulation (AM-bismulation) is a \refdef{span} in the category of $F$-coalgebras.
+
+    I.e. for two coalgebras $c_X : X\to FX$, and $c_Y : Y \to FY$, an AM bisimulation is a span:
+    % https://q.uiver.app/#q=WzAsMyxbMSwwLCJjX1IiXSxbMCwwLCJjX1giXSxbMiwwLCJjX1kiXSxbMCwxLCJcXHBoaV9YIiwyXSxbMCwyLCJcXHBoaV9ZIl1d
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            {c_X} \& {c_R} \& {c_Y}
+            \arrow["{\phi_X}"', from=1-2, to=1-1]
+            \arrow["{\phi_Y}", from=1-2, to=1-3]
+        \end{tikzcd}\]
+
+\end{defB}
+Note that the two are related. In fact for most common functors (any functor that preserves weak pullbacks) AM Bisimulation is weaker than Behavioral equivalence.
+
+The result is a bit more complicated, but can be found here \refres{compare-am-and-beh-equiv}.
+
+
+The following result is a bit more complicated but may be useful.
+
+
+\newpage
+\section{Couplings (new)}
 \begin{defb}[set-element-coupling]{Set Element Coupling}
 
     Let
@@ -1086,8 +1125,8 @@ We give the formal proof first, then give some intuition.
             Thus $P^X[x \lto{a} C] = P^X[x' \lto{a} C]$, and $r^X(x) = r^X(x')$.
         \end{resb}
 
-        \begin{resb}{Backward direction} WTS $\forall_{x, x'} x' B_I x \implies r^X(x)  = r^X(x') \land \forall_a^A \forall_C^{X/B_I} P^X[x' \lto{a} C] = P^X[x \lto{a} C]$
-            \todo[inline]{Prove}
+        \begin{resb}{Backward direction} WTS $\forall_{x, x'} r^X(x)  = r^X(x') \land \forall_a^A \forall_C^{X/B_I} P^X[x' \lto{a} C] = P^X[x \lto{a} C] \implies x B_I x'$
+            \todo[inline]{Prove. May not be true, but you may be able to add more conditions until you get it. This in some sense says that the bisimulation is larger,}
         \end{resb}
     \end{proof}
 \end{resB}
@@ -1473,7 +1512,7 @@ Then we cover some category theory definitions that we will use.
 
 \subsection{Metric review and notation}
 \begin{defB}{Pseudometric Space}
-    A pseudometic space is a pair $(X, d^X)$, for a set set $X$ and function $d^X : X \times X \to [0,T]_\R$ for some $T\in \R$, subject to: ($\forall_{x,y}^X$)
+    A pseudometic space is a pair $(X, d^X)$, for a set set $X$ and function $d^X : X \times X \to [0,T]_\R$ for some $T\in \R$, subject to: ($\forall_{x,y,z}^X$)
     \begin{itemize}
         \item (Symmetry) $d^X(x,y) = d^X(y,x)$
         \item (Triangle Inequality) $d^X(x,z) \le d^X(x,y) + d^X(y,z)$
@@ -1499,7 +1538,7 @@ Then we cover some category theory definitions that we will use.
 \end{defb}
 \subsection{Categorical Prerequisites}
 
-\begin{defB}{$\catpmet$}
+\begin{defB}[PMet]{$\catpmet$}
     Define $\catpmet$ as the category with:
     \begin{itemize}
         \item $\Obj (\catpmet) \eqdef $ all pseudo-metric spaces $(X, d^X)$.
@@ -1516,20 +1555,70 @@ Then we cover some category theory definitions that we will use.
 
 
 
-\begin{defB}{Lifting of endofunctor from $\catset$ to $\catpmet$}
+\begin{defB}[lift-functor-pmet]{Lifting of endofunctor from $\catset$ to $\catpmet$}
     Let $F : \catset \to \catset$. A lifting of $F$ to $\catpmet$ is a functor $\bar F$ such that TFDC:
-    % https://q.uiver.app/#q=WzAsNCxbMCwxLCJcXGNhdHNldCJdLFswLDAsIlxcY2F0cG1ldCJdLFsxLDAsIlxcY2F0cG1ldCJdLFsxLDEsIlxcY2F0c2V0Il0sWzEsMCwiVSIsMl0sWzAsMywiRiIsMl0sWzEsMiwiXFxiYXIgRiJdLFsyLDMsIlUiXV0=
+    % https://q.uiver.app/#q=WzAsNCxbMCwxLCJcXGNhdHNldCJdLFswLDAsIlxcY2F0cG1ldCJdLFsxLDAsIlxcY2F0cG1ldCJdLFsxLDEsIlxcY2F0c2V0Il0sWzEsMCwiXFxmb3JnZXQiLDJdLFswLDMsIkYiLDJdLFsxLDIsIlxcYmFyIEYiXSxbMiwzLCJcXGZvcmdldCJdXQ==
     \[\begin{tikzcd}[ampersand replacement=\&]
             \catpmet \& \catpmet \\
             \catset \& \catset
             \arrow["{\bar F}", from=1-1, to=1-2]
-            \arrow["U"', from=1-1, to=2-1]
-            \arrow["U", from=1-2, to=2-2]
+            \arrow["\forget"', from=1-1, to=2-1]
+            \arrow["\forget", from=1-2, to=2-2]
             \arrow["F"', from=2-1, to=2-2]
         \end{tikzcd}\]
     (in the category of small categories)
+
+
+    Given a pseudometric space $(X,d)$, define the metric $d^F$ as the output $(FX, d^F) = \bar F(X,d)$.
 \end{defB}
 
+
+The general idea is this:
+\begin{expb}{General idea for Coalgebraic Behavioral Metrics}
+
+    Given an $F$-coalgebra $c : X \to FX$, we want to turn this into a
+    $\bar F$-coalgebra $((X, d_C),  c)$ such that $c : (X, d_C) \to (FX, d_C^F)$ is nonexpansive ($c$ is a $\catpmet$ morphism).
+    Note that $d \mapsto d^F \circ (c,c)$ is monotone. By Knaster Tarski, this has a fixed point. Let $d_C$ be this fixed point:
+    \begin{align}
+        d_C \eqdef \inf \{ d : \texttt{pseudometric}( : X^2 \to [0,T]_\R) | d_F \circ (c,c) \le d \}
+    \end{align}
+    (here inf is taken over the poset of pseudometrics)
+
+
+    Since $d_C = d_C^F \circ (c,c)$, we have that $c$ is an isometry
+\end{expb}
+
+An important result is that $\bar F$ on objects is monotone:
+\begin{resB}{$\bar F$ is monotone}
+    \begin{enumerate}
+        \item
+              Let $F: \catset \to \catset$.
+        \item
+              Let $\bar F : \catpmet \to \catpmet$ be as in \refdef{lift-functor-pmet}.
+        \item
+              Let $(X,d_0), (X,d_1)$ be pseudometrics.
+
+    \end{enumerate}
+    Then:
+    \begin{align*}
+        d_0^F \le d_1^F
+    \end{align*}
+
+    \dline
+
+    \begin{proof}
+        Recall first that from \refdef{PMet}, morphisms only consist of non expansive functions.
+
+        Thus $d_0 \le d_1 \iff $ there is some $f : \Hom^{\catpmet}((X,d_0), (X,d_1))$ such that $U f = \id_X$.
+
+
+        Now assume $d_0 \le d_1$. Then take $f$ like above.
+
+        Then $\bar F f : (FX, d_0^F) \to (FX, d_1^F)$ must exist by functorality.
+
+        Furthermore, because $\bar F$ is a lifting, $U \bar F f = \id_X$. Thus $f_0^F \le f_1^F$.
+    \end{proof}
+\end{resB}
 
 \subsection{Evaluations}
 Now consider coalgebras on $\catset$.
@@ -1622,19 +1711,198 @@ Note that also any pseudometric space $(X,d^X)$ can be thought of as an object i
 \newpage
 \section{More complicated results}
 
-\subsection{Existance of final coalgebra}
-(A slightly more involved result shows how to build a final coalgebra)
+\subsection{Limits/Colimits, Pullbacks}
 
 \begin{defB}[limit]{Limit}
     \todo[inline]{Fill in}
 
 \end{defB}
 
+\begin{defb}[weak-limit]{Weak limit}
+    A weak limit is just like a limit, but the map does not need to be unique.
+\end{defb}
+
 
 \begin{defB}[colimit]{Colimit}
     \todo[inline]{Fill in}
 
 \end{defB}
+
+\begin{defB}[pullback]{Pullback}
+    Let $X \lto{\phi_X} Z \lfrom{\phi_Y} Y$ be a cospan. A pullback of this cospan is the limit of the diagram.
+
+    More concretely, it is an object $P$ with maps $p_X : P \to X$ and $p_Y : P \to Y$ such that for any other object $Q$ with maps $q_X : Q\to X$, $q_Y : Q \to Y$, there is a unique map $!:Q \to P$ TFDC:
+    % https://q.uiver.app/#q=WzAsNSxbMSwxLCJQIl0sWzEsMiwiWCJdLFsyLDEsIlkiXSxbMiwyLCJaIl0sWzAsMCwiUSJdLFsxLDMsIlxccGhpX1giLDJdLFsyLDMsIlxccGhpX1oiXSxbMCwxLCJwX1giLDJdLFswLDIsInBfWSJdLFs0LDEsInFfWCIsMix7ImN1cnZlIjozfV0sWzQsMiwicV9ZIiwwLHsiY3VydmUiOi0zfV0sWzQsMCwiXFxleGlzdHMgISIsMCx7InN0eWxlIjp7ImJvZHkiOnsibmFtZSI6ImRhc2hlZCJ9fX1dXQ==
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            Q \\
+            \& P \& Y \\
+            \& X \& Z
+            \arrow["{\exists !}", dashed, from=1-1, to=2-2]
+            \arrow["{q_Y}", curve={height=-18pt}, from=1-1, to=2-3]
+            \arrow["{q_X}"', curve={height=18pt}, from=1-1, to=3-2]
+            \arrow["{p_Y}", from=2-2, to=2-3]
+            \arrow["{p_X}"', from=2-2, to=3-2]
+            \arrow["{\phi_Z}", from=2-3, to=3-3]
+            \arrow["{\phi_X}"', from=3-2, to=3-3]
+        \end{tikzcd}\]
+\end{defB}
+\begin{defB}{Weak Pullback}
+    A weak pullback is a weak limit of a span $X \lto{\phi_X} Z \lfrom{\phi_Y} Y$. I.e. see \refdef{pullback}, but the map  $: Q \to P$ does not have to be unique:
+    % https://q.uiver.app/#q=WzAsNSxbMSwxLCJQIl0sWzEsMiwiWCJdLFsyLDEsIlkiXSxbMiwyLCJaIl0sWzAsMCwiUSJdLFsxLDMsIlxccGhpX1giLDJdLFsyLDMsIlxccGhpX1oiXSxbMCwxLCJwX1giLDJdLFswLDIsInBfWSJdLFs0LDEsInFfWCIsMix7ImN1cnZlIjozfV0sWzQsMiwicV9ZIiwwLHsiY3VydmUiOi0zfV0sWzQsMCwiXFxleGlzdHMiLDAseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XV0=
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            Q \\
+            \& P \& Y \\
+            \& X \& Z
+            \arrow["\exists", dashed, from=1-1, to=2-2]
+            \arrow["{q_Y}", curve={height=-18pt}, from=1-1, to=2-3]
+            \arrow["{q_X}"', curve={height=18pt}, from=1-1, to=3-2]
+            \arrow["{p_Y}", from=2-2, to=2-3]
+            \arrow["{p_X}"', from=2-2, to=3-2]
+            \arrow["{\phi_Z}", from=2-3, to=3-3]
+            \arrow["{\phi_X}"', from=3-2, to=3-3]
+        \end{tikzcd}\]
+
+\end{defB}
+
+\subsection{Comparing Bisimulation}
+\begin{resB}[compare-am-and-beh-equiv]{AM Bisimulation is weaker than Behavioral Equivalence}
+    Suppose $F : C \to C$ preserves weak pullbacks, and $C$ has weak pullbacks. Then for any AM bisimulation $c_X \lfrom{\phi_X} c_R \lto{\phi_Y} c_Y$ there is a behavioral equivalence.
+
+
+    \dline
+
+    % \begin{proof} \hfill
+
+    We will use the following:
+    \begin{resb}{Weak pullbacks on $F$-coalgebras}
+        Let $C$ be a category with weak pullbacks.
+
+        Suppose endofunctor $F: C \to C$ preserves weak pullbacks.
+
+        Then the category of $F$ coalgebras has weak pullbacks.
+        \dline
+
+        % \begin{proof}
+        Suppose you have a cospan $c_X \lto{\phi_X} c_Z \lfrom{\phi_Y} c_Y$, where $c_X : X \to FX$, $c_Y : Y \to FY$, $c_Z : Z \to FZ$.
+
+        Becasue $C$ has weak pullbacks, take $(P, p_X : P \to X, p_Y : P \to Y)$ to be the pullback of
+
+        $X \lto{\phi_X} Z \lfrom{\phi_Y} Y$. Using the definition of coalgebra homomorphisms, we get TFDC:
+        % https://q.uiver.app/#q=WzAsNyxbMCwyLCJYIl0sWzEsMiwiWiJdLFsyLDIsIlkiXSxbMCwzLCJGWCJdLFsxLDMsIkZaIl0sWzIsMywiRlkiXSxbMywwLCJQIl0sWzAsMywiY19YIiwyXSxbMSw0LCJjX1oiLDFdLFsyLDUsImNfWSIsMl0sWzMsNCwiRiBcXHBoaV9YIiwyXSxbMCwxLCJcXHBoaV9YIl0sWzIsMSwiXFxwaGlfWSIsMl0sWzUsNCwiRlxccGhpX1kiXSxbNiwwLCJwX1giLDIseyJjdXJ2ZSI6MX1dLFs2LDIsInBfWSJdXQ==
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                \&\&\& P \\
+                \\
+                X \& Z \& Y \\
+                FX \& FZ \& FY
+                \arrow["{p_X}"', curve={height=6pt}, from=1-4, to=3-1]
+                \arrow["{p_Y}", from=1-4, to=3-3]
+                \arrow["{\phi_X}", from=3-1, to=3-2]
+                \arrow["{c_X}"', from=3-1, to=4-1]
+                \arrow["{c_Z}"{description}, from=3-2, to=4-2]
+                \arrow["{\phi_Y}"', from=3-3, to=3-2]
+                \arrow["{c_Y}"', from=3-3, to=4-3]
+                \arrow["{F \phi_X}"', from=4-1, to=4-2]
+                \arrow["{F\phi_Y}", from=4-3, to=4-2]
+            \end{tikzcd}\]
+
+        Then because $F$ preserves weak pullbacks, we can add the pullback $(FP, Fp_X : FP \to FX, Fp_Y : FP \to FY)$. Then notice that $c_X \circ p_X : P \to FX$, and $c_Y \circ p_Y : P \to FY$.
+
+        So becasue $FP$ is a pullback, there must be a map $f : P \to FP$. As a diagram, this means TFDC:
+        % https://q.uiver.app/#q=WzAsOCxbMCwwLCJYIl0sWzIsMiwiWiJdLFs0LDQsIlkiXSxbMCwyLCJGWCJdLFsyLDQsIkZaIl0sWzQsNiwiRlkiXSxbNSwyLCJGUCJdLFs1LDAsIlAiXSxbMCwzLCJjX1giLDJdLFsxLDQsImNfWiIsMV0sWzIsNSwiY19ZIiwyXSxbMyw0LCJGIFxccGhpX1giLDFdLFswLDEsIlxccGhpX1giLDFdLFsyLDEsIlxccGhpX1kiLDFdLFs1LDQsIkZcXHBoaV9ZIiwxXSxbNiwzLCJGcF9YIiwxXSxbNiw1LCJGcF9ZIiwxXSxbNywwLCJwX1giLDFdLFs3LDJdLFs3LDYsIlxcZXhpc3RzICBjX1AiLDEseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XV0=
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                X \&\&\&\&\& P \\
+                \\
+                FX \&\& Z \&\&\& FP \\
+                \\
+                \&\& FZ \&\& Y \\
+                \\
+                \&\&\&\& FY
+                \arrow["{c_X}"', from=1-1, to=3-1]
+                \arrow["{\phi_X}"{description}, from=1-1, to=3-3]
+                \arrow["{p_X}"{description}, from=1-6, to=1-1]
+                \arrow["{\exists  c_P}"{description}, dashed, from=1-6, to=3-6]
+                \arrow[from=1-6, to=5-5]
+                \arrow["{F \phi_X}"{description}, from=3-1, to=5-3]
+                \arrow["{c_Z}"{description}, from=3-3, to=5-3]
+                \arrow["{Fp_X}"{description}, from=3-6, to=3-1]
+                \arrow["{Fp_Y}"{description}, from=3-6, to=7-5]
+                \arrow["{\phi_Y}"{description}, from=5-5, to=3-3]
+                \arrow["{c_Y}"', from=5-5, to=7-5]
+                \arrow["{F\phi_Y}"{description}, from=7-5, to=5-3]
+            \end{tikzcd}\]
+        Thus in the category of coalgebras:
+        % https://q.uiver.app/#q=WzAsNCxbMSwwLCJjX1AiXSxbMCwxLCJjX1giXSxbMSwyLCJjX1oiXSxbMiwxLCJjX1kiXSxbMCwxLCJwX1giLDJdLFswLDMsInBfWSJdLFsxLDIsIlxccGhpX1giLDJdLFszLDIsIlxccGhpX1kiXV0=
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                \& {c_P} \\
+                {c_X} \&\& {c_Y} \\
+                \& {c_Z}
+                \arrow["{p_X}"', from=1-2, to=2-1]
+                \arrow["{p_Y}", from=1-2, to=2-3]
+                \arrow["{\phi_X}"', from=2-1, to=3-2]
+                \arrow["{\phi_Y}", from=2-3, to=3-2]
+            \end{tikzcd}\]
+        Now take any other coalgebra $c_Q : Q \to FQ$, with homomorphisms $q_X : c_Q \to c_X$, and $q_Y : c_Q \to c_Y$.
+
+        Because $P$ is a pullback, there must exist some $g : Q \to P$ in the diagram below, that commutes with the pullback square $(P,X,Y,Z)$.
+
+        \todo[inline]{finish}
+
+        \newpage
+
+
+        % https://q.uiver.app/#q=WzAsMTAsWzAsMiwiWCJdLFsyLDQsIloiXSxbNCw2LCJZIl0sWzAsNCwiRlgiXSxbMiw2LCJGWiJdLFs0LDgsIkZZIl0sWzgsMCwiUSJdLFs4LDIsIkZRIl0sWzUsNCwiRlAiXSxbNSwyLCJQIl0sWzAsMywiY19YIiwyXSxbMSw0LCJjX1oiLDFdLFsyLDUsImNfWSIsMl0sWzMsNCwiRiBcXHBoaV9YIiwxXSxbMCwxLCJcXHBoaV9YIiwxXSxbMiwxLCJcXHBoaV9ZIiwxXSxbNSw0LCJGXFxwaGlfWSIsMV0sWzYsMCwicV9YIiwxLHsibGFiZWxfcG9zaXRpb24iOjIwLCJjdXJ2ZSI6Mn1dLFs2LDIsInFfWSIsMSx7ImxhYmVsX3Bvc2l0aW9uIjoyMCwiY3VydmUiOi00fV0sWzcsMywiRnFfWCIsMSx7ImxhYmVsX3Bvc2l0aW9uIjoyMCwiY3VydmUiOjJ9XSxbNiw3LCJjX1EiXSxbOCwzLCJGcF9YIiwxXSxbOCw1LCJGcF9ZIiwxXSxbOSwwLCJwX1giLDFdLFs5LDJdLFs5LDgsIlxcZXhpc3RzICBjX1AiLDEseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XSxbNiw5LCJcXGV4aXN0cyBnIiwxLHsic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZGFzaGVkIn19fV0sWzcsNSwiRnFfWSIsMSx7ImN1cnZlIjotNH1dLFs3LDgsIkZnIiwxXV0=
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                \&\&\&\&\&\&\&\& Q \\
+                \\
+                X \&\&\&\&\& P \&\&\& FQ \\
+                \\
+                FX \&\& Z \&\&\& FP \\
+                \\
+                \&\& FZ \&\& Y \\
+                \\
+                \&\&\&\& FY
+                \arrow["{q_X}"{description, pos=0.2}, curve={height=12pt}, from=1-9, to=3-1]
+                \arrow["{\exists g}"{description}, dashed, from=1-9, to=3-6]
+                \arrow["{c_Q}", from=1-9, to=3-9]
+                \arrow["{q_Y}"{description, pos=0.2}, curve={height=-24pt}, from=1-9, to=7-5]
+                \arrow["{c_X}"', from=3-1, to=5-1]
+                \arrow["{\phi_X}"{description}, from=3-1, to=5-3]
+                \arrow["{p_X}"{description}, from=3-6, to=3-1]
+                \arrow["{\exists  c_P}"{description}, dashed, from=3-6, to=5-6]
+                \arrow[from=3-6, to=7-5]
+                \arrow["{Fq_X}"{description, pos=0.2}, curve={height=12pt}, from=3-9, to=5-1]
+                \arrow["Fg"{description}, from=3-9, to=5-6]
+                \arrow["{Fq_Y}"{description}, curve={height=-24pt}, from=3-9, to=9-5]
+                \arrow["{F \phi_X}"{description}, from=5-1, to=7-3]
+                \arrow["{c_Z}"{description}, from=5-3, to=7-3]
+                \arrow["{Fp_X}"{description}, from=5-6, to=5-1]
+                \arrow["{Fp_Y}"{description}, from=5-6, to=9-5]
+                \arrow["{\phi_Y}"{description}, from=7-5, to=5-3]
+                \arrow["{c_Y}"', from=7-5, to=9-5]
+                \arrow["{F\phi_Y}"{description}, from=9-5, to=7-3]
+            \end{tikzcd}\]
+        % \end{proof}
+    \end{resb}
+    % https://q.uiver.app/#q=WzAsNCxbMCwxLCJjX1giXSxbMSwwLCJjX1kiXSxbMSwxLCIqIl0sWzAsMCwiXFxleGlzdHMgY19SIl0sWzAsMl0sWzEsMl0sWzMsMF0sWzMsMV1d
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            {\exists c_R} \& {c_Y} \\
+            {c_X} \& {*}
+            \arrow[from=1-1, to=1-2]
+            \arrow[from=1-1, to=2-1]
+            \arrow[from=1-2, to=2-2]
+            \arrow[from=2-1, to=2-2]
+        \end{tikzcd}\]
+
+
+    So basically we want to show taht given a
+
+    % \end{proof}
+
+\end{resB}
+
+
+\subsection{Existance of final coalgebra}
+(A slightly more involved result shows how to build a final coalgebra)
 
 
 \begin{defb}{Cochain, Chain}
