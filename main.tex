@@ -685,14 +685,16 @@ Later we will use the following constructions:
 
 
 \newpage
-\section{Bisimulation and Behavioral Equivalence}
+\section{Final Coalgebras, Behavioral Equivalence, Bisimulation}
+
+\subsection{Final Coalgebras}
 One natural question to answer is given two systems, are they behaviorally equivalent. This question can be formalized by looking at terminal objects in the category of coalgebras.
 
-\begin{defb}{Terminal Coalgebra}
+\begin{defb}{Terminal/Final Coalgebra}
     Recall \refdef{terminal-obj}.
 
     Fix a functor $F$.
-    The terminal/final coalgebra is the terminal object in the category of $F$-coalgebras.
+    The terminal/final coalgebra for $F$ is the terminal object in the category of $F$-coalgebras.
 \end{defb}
 
 \begin{expb}{Terminal Coalgebra}
@@ -715,7 +717,45 @@ One natural question to answer is given two systems, are they behaviorally equiv
 \end{expb}
 
 
+\begin{resB}{Lambek's theorem (dual)}
+    If $F$ has a final coalgebra $\alpha : A \to FA$, then $A \cong FA$.
 
+    \dline
+
+    \begin{proof}
+        By finality of $\alpha$, there must be a unique coalgebra hom $f: F \alpha \to \alpha$. Thus TFDC:
+        % https://q.uiver.app/#q=WzAsNCxbMCwwLCJBIl0sWzAsMSwiRkEiXSxbMSwxLCJGRkEiXSxbMSwwLCJGQSJdLFswLDEsIlxcYWxwaGEiLDJdLFszLDIsIkZcXGFscGhhIl0sWzIsMSwiRmYiLDAseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XSxbMywwLCJcXGV4aXN0cyAhIGYiLDIseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XV0=
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                A \& FA \\
+                FA \& FFA
+                \arrow["\alpha"', from=1-1, to=2-1]
+                \arrow["{\exists ! f}"', dashed, from=1-2, to=1-1]
+                \arrow["{F\alpha}", from=1-2, to=2-2]
+                \arrow["Ff", dashed, from=2-2, to=2-1]
+            \end{tikzcd}\]
+        Now note that $\alpha$ is also a coalgebra hom $:\alpha \to F\alpha$ (trivially TFDC):
+        % https://q.uiver.app/#q=WzAsNCxbMCwwLCJBIl0sWzAsMSwiRkEiXSxbMSwxLCJGRkEiXSxbMSwwLCJGQSJdLFswLDEsIlxcYWxwaGEiLDJdLFswLDMsIlxcYWxwaGEiXSxbMSwyLCJGXFxhbHBoYSIsMl0sWzMsMiwiRlxcYWxwaGEiXV0=
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                A \& FA \\
+                FA \& FFA
+                \arrow["\alpha", from=1-1, to=1-2]
+                \arrow["\alpha"', from=1-1, to=2-1]
+                \arrow["{F\alpha}", from=1-2, to=2-2]
+                \arrow["{F\alpha}"', from=2-1, to=2-2]
+            \end{tikzcd}\]
+        So there are two coalgebra homomorphisms $:\alpha \to \alpha$, namely $\id_A$ and $f \circ \alpha$. By finality of $\alpha$, we have $f \circ \alpha = \id_A$.
+
+        So because $f\circ \alpha = \id_A$, it must be that $Ff \circ F\alpha = \id_{FA}$, by functorality of $F$.
+
+        Thus by the first diagram, we have $\id_{FA} = Ff \circ F\alpha = \alpha \circ f$.
+    \end{proof}
+
+\end{resB}
+Note that Lambek's Theorem is for $F$ algebras, but the dual statement is what we proved above.
+
+
+
+\subsection{Behavioral Equivalence and Bisimulation}
 
 There are two notions of coalgebraic bisimulation that we cover:
 
@@ -814,7 +854,7 @@ this relates to the earlier definition above:
 
 \end{resb}
 
-(note this is a simpler version of a distributive law for a monad, however we do not assume $F$ is a monad, but also specifically do this for a product functor)
+(note this is a simpler version of a distributive law for a monad, however we do not assume $F$ is a monad, and also specify that the other functor is the product functor)
 
 Suppose now that $c_R : R \to FR$ is a bisimulation between $c_X : X \to FX$, and $c_Y : Y \to FY$. Then note because of \refdef{coalgebra-hom}, there must be some span on sets $X \lfrom{\phi_X} R \lto{\phi_Y} Y$, and because $\catset$ has products, by \refdef{product} these must factor out into product maps. The question is, is there any way to given a bisimulation $c_R : R \to FR$, reduce it to a coalgebra of type $X \times Y \to F(X \times Y)$? this would allow for an easier way to interpret what the bisimulation is doing.
 
@@ -1437,61 +1477,74 @@ Notice that because we work on $\catset \times \catset$, and due to the product 
     Then a coalgbra homomorphism $\phi = (\phi_I, \phi_D) : c_X \to c_Y$ is:
 
     \dline
-    \begin{proof}
-        $\phi$ will make TFDC:
-        % https://q.uiver.app/#q=WzAsNCxbMCwwLCIoWF9JLFhfRCkiXSxbMiwwLCIoWV9JLFlfRCkiXSxbMCwyLCJGKFhfSSxYX0QpIl0sWzIsMiwiRihZX0ksWV9EKSJdLFswLDEsIihcXHBoaV9JLFxccGhpX0QpIl0sWzIsMywiRihcXHBoaV9JLCBcXHBoaV9EKSJdLFswLDIsIihjX3tYX0l9LCBjX3tYX0R9KSIsMl0sWzEsMywiKGNfe1lfSX0sIGNfe1lfRH0pIl1d
+    $\phi$ will make TFDC:
+    % https://q.uiver.app/#q=WzAsNCxbMCwwLCIoWF9JLFhfRCkiXSxbMiwwLCIoWV9JLFlfRCkiXSxbMCwyLCJGKFhfSSxYX0QpIl0sWzIsMiwiRihZX0ksWV9EKSJdLFswLDEsIihcXHBoaV9JLFxccGhpX0QpIl0sWzIsMywiRihcXHBoaV9JLCBcXHBoaV9EKSJdLFswLDIsIihjX3tYX0l9LCBjX3tYX0R9KSIsMl0sWzEsMywiKGNfe1lfSX0sIGNfe1lfRH0pIl1d
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            {(X_I,X_D)} \&\& {(Y_I,Y_D)} \\
+            \\
+            {F(X_I,X_D)} \&\& {F(Y_I,Y_D)}
+            \arrow["{(\phi_I,\phi_D)}", from=1-1, to=1-3]
+            \arrow["{(c_{X_I}, c_{X_D})}"', from=1-1, to=3-1]
+            \arrow["{(c_{Y_I}, c_{Y_D})}", from=1-3, to=3-3]
+            \arrow["{F(\phi_I, \phi_D)}", from=3-1, to=3-3]
+        \end{tikzcd}\]
+    which commutes iff both of the following commute:
+
+
+    \begin{minipage}{0.45\textwidth}
+        % https://q.uiver.app/#q=WzAsNCxbMCwwLCJYX0kiXSxbMiwwLCJZX0kiXSxbMCwyLCIoMl57WF9JfVxcdGltZXMgMl57WF9EfSleXFxTaWdtYSJdLFsyLDIsIigyXntZX0l9XFx0aW1lcyAyXntZX0R9KV5cXFNpZ21hIl0sWzAsMSwiXFxwaGlfSSJdLFswLDIsImNfe1hfSX0iLDJdLFsxLDMsImNfe1lfSX0iXSxbMiwzLCIoXFxwaGlfSVtcXGNkb3RdLCBcXHBoaV9EW1xcY2RvdF0pIFxcY2lyYyAoXFxjZG90KSIsMl1d
         \[\begin{tikzcd}[ampersand replacement=\&]
-                {(X_I,X_D)} \&\& {(Y_I,Y_D)} \\
+                {X_I} \&\& {Y_I} \\
                 \\
-                {F(X_I,X_D)} \&\& {F(Y_I,Y_D)}
-                \arrow["{(\phi_I,\phi_D)}", from=1-1, to=1-3]
-                \arrow["{(c_{X_I}, c_{X_D})}"', from=1-1, to=3-1]
-                \arrow["{(c_{Y_I}, c_{Y_D})}", from=1-3, to=3-3]
-                \arrow["{F(\phi_I, \phi_D)}", from=3-1, to=3-3]
+                {(2^{X_I}\times 2^{X_D})^\Sigma} \&\& {(2^{Y_I}\times 2^{Y_D})^\Sigma}
+                \arrow["{\phi_I}", from=1-1, to=1-3]
+                \arrow["{c_{X_I}}"', from=1-1, to=3-1]
+                \arrow["{c_{Y_I}}", from=1-3, to=3-3]
+                \arrow["{(\phi_I[\cdot], \phi_D[\cdot]) \circ (\cdot)}"', from=3-1, to=3-3]
             \end{tikzcd}\]
-        which commutes iff both of the following commute:
-
-
-        \begin{minipage}{0.45\textwidth}
-            % https://q.uiver.app/#q=WzAsNCxbMCwwLCJYX0kiXSxbMiwwLCJZX0kiXSxbMCwyLCIoMl57WF9JfVxcdGltZXMgMl57WF9EfSleXFxTaWdtYSJdLFsyLDIsIigyXntZX0l9XFx0aW1lcyAyXntZX0R9KV5cXFNpZ21hIl0sWzAsMSwiXFxwaGlfSSJdLFswLDIsImNfe1hfSX0iLDJdLFsxLDMsImNfe1lfSX0iXSxbMiwzLCIoXFxwaGlfSVtcXGNkb3RdLCBcXHBoaV9EW1xcY2RvdF0pIFxcY2lyYyAoXFxjZG90KSIsMl1d
-            \[\begin{tikzcd}[ampersand replacement=\&]
-                    {X_I} \&\& {Y_I} \\
-                    \\
-                    {(2^{X_I}\times 2^{X_D})^\Sigma} \&\& {(2^{Y_I}\times 2^{Y_D})^\Sigma}
-                    \arrow["{\phi_I}", from=1-1, to=1-3]
-                    \arrow["{c_{X_I}}"', from=1-1, to=3-1]
-                    \arrow["{c_{Y_I}}", from=1-3, to=3-3]
-                    \arrow["{(\phi_I[\cdot], \phi_D[\cdot]) \circ (\cdot)}"', from=3-1, to=3-3]
-                \end{tikzcd}\]
-        \end{minipage}
-        \begin{minipage}{0.45\textwidth}
-            \vspace{1em}
-            % https://q.uiver.app/#q=WzAsNCxbMCwwLCJYX0QiXSxbMiwwLCJZX0QiXSxbMCwyLCIoWF9EXlxcU2lnbWEgXFx0aW1lcyAyXmspIl0sWzIsMiwiKFlfRF5cXFNpZ21hIFxcdGltZXMgMl5rKSJdLFswLDEsIlxccGhpX0QiXSxbMCwyLCJjX3tYX0R9IiwyXSxbMSwzLCJjX3tZX0R9Il0sWzIsMywiIChcXHBoaV9EIFxcY2lyYyAoXFxjZG90KSwgXFxpZF97Ml5rfSkiLDJdXQ==
-            \[\begin{tikzcd}[ampersand replacement=\&]
-                    {X_D} \&\& {Y_D} \\
-                    \\
-                    {(X_D^\Sigma \times 2^k)} \&\& {(Y_D^\Sigma \times 2^k)}
-                    \arrow["{\phi_D}", from=1-1, to=1-3]
-                    \arrow["{c_{X_D}}"', from=1-1, to=3-1]
-                    \arrow["{c_{Y_D}}", from=1-3, to=3-3]
-                    \arrow["{ (\phi_D \circ (\cdot), \id_{2^k})}"', from=3-1, to=3-3]
-                \end{tikzcd}\]
-        \end{minipage}
+    \end{minipage}
+    \begin{minipage}{0.45\textwidth}
+        \vspace{1em}
+        % https://q.uiver.app/#q=WzAsNCxbMCwwLCJYX0QiXSxbMiwwLCJZX0QiXSxbMCwyLCIoWF9EXlxcU2lnbWEgXFx0aW1lcyAyXmspIl0sWzIsMiwiKFlfRF5cXFNpZ21hIFxcdGltZXMgMl5rKSJdLFswLDEsIlxccGhpX0QiXSxbMCwyLCJjX3tYX0R9IiwyXSxbMSwzLCJjX3tZX0R9Il0sWzIsMywiIChcXHBoaV9EIFxcY2lyYyAoXFxjZG90KSwgXFxpZF97Ml5rfSkiLDJdXQ==
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                {X_D} \&\& {Y_D} \\
+                \\
+                {(X_D^\Sigma \times 2^k)} \&\& {(Y_D^\Sigma \times 2^k)}
+                \arrow["{\phi_D}", from=1-1, to=1-3]
+                \arrow["{c_{X_D}}"', from=1-1, to=3-1]
+                \arrow["{c_{Y_D}}", from=1-3, to=3-3]
+                \arrow["{ (\phi_D \circ (\cdot), \id_{2^k})}"', from=3-1, to=3-3]
+            \end{tikzcd}\]
+    \end{minipage}
 
 
 
-        \begin{align*}
-            \text{LHS Commutes} & \iff (\phi_I[\cdot], \phi_D[\cdot]) \circ c_{X_I} = c_{Y_I} \circ \phi_I                               \\
-                                & \iff \forall_{x_I}^{X_I} (\phi_I[\cdot], \phi_D[\cdot]) \circ c_{X_I}(x_I) = c_{Y_I} \circ \phi_I(x_I) \\
-                                & \iff \forall_{x_I}^{X_I}
-        \end{align*}
+    \begin{align*}
+        \text{LHS Commutes} & \iff (\phi_I[\cdot], \phi_D[\cdot]) \circ c_{X_I} = c_{Y_I} \circ \phi_I                               \\
+                            & \iff \forall_{x_I}^{X_I} (\phi_I[\cdot], \phi_D[\cdot]) \circ c_{X_I}(x_I) = c_{Y_I} \circ \phi_I(x_I) \\
+        % & \iff \forall_{x_I}^{X_I}
+    \end{align*}
 
 
-        \begin{align*}
-            \text{RHS commutes} & \iff\Big(\phi_D \circ (\cdot), \id_{2^k}\Big)\circ c_{X_D} = c_{Y_D} \circ \phi_D                                \\
-                                & \iff \forall_{x_D}^{X_D} \Big(\phi_D \circ (\cdot), \id_{2^k}\Big)\circ c_{X_D}(x_D) = c_{Y_D} \circ \phi_D(x_D)
-        \end{align*}
-    \end{proof}
+    \begin{align*}
+        \text{RHS commutes} & \iff\Big(\phi_D \circ (\cdot), \id_{2^k}\Big)\circ c_{X_D} = c_{Y_D} \circ \phi_D                                \\
+                            & \iff \forall_{x_D}^{X_D} \Big(\phi_D \circ (\cdot), \id_{2^k}\Big)\circ c_{X_D}(x_D) = c_{Y_D} \circ \phi_D(x_D)
+    \end{align*}
+
+
+    So to summarize, the initial part looks like (for all $\sigma : \Sigma$):
+    \begin{figure}[H]
+        \includesvg[inkscapelatex=false, scale=0.4]{images/ldba-hom-xI.svg}
+        \centering
+        \caption{Initial part of the homomorphism}
+    \end{figure}
+
+    For the final part:
+    \begin{figure}[H]
+        \includesvg[inkscapelatex=false, scale=0.7]{images/ldba-hom-xD.svg}
+        \centering
+        \caption{Deterministic part of the homomorphism}
+    \end{figure}
 \end{resB}
 
 
@@ -1524,7 +1577,7 @@ Then we cover some category theory definitions that we will use.
         \item (Reflexivity) $d^X(x,x) = 0$
     \end{itemize}
 
-    \textbf{(Note we are assuming a pseudometric is bounded)}
+    \textbf{(Note we are assuming a pseudometric is bounded by some fixed $T \in \R$)}
 \end{defB}
 
 \begin{defB}{Metric}
@@ -1701,7 +1754,7 @@ Note that also any pseudometric space $(X,d^X)$ can be thought of as an object i
     The Kantorovich lifting (functor) of $F: \catset \to \catset$ is $F_K : \catpmet \to \catpmet$ such that $F_K (X,d^X) = (X, d_{K(X,d^X)})$, and $F_K f = Ff$.
 \end{defB}
 
-\todo[inline]{Show examples, in particular on $\Delta$}
+\todo[inline]{Show more examples, in particular on $\Delta$}
 
 
 \begin{resb}{Useful results}
@@ -1711,6 +1764,54 @@ Note that also any pseudometric space $(X,d^X)$ can be thought of as an object i
         \item
     \end{enumerate}
 \end{resb}
+
+
+\begin{resb}{Kantorovich metric for MDP (new)}
+    Recall the MDP functor \refdef{mdp-functor}.
+
+    Below represents applying $\eval \circ F V_X$ for some arbitrary $V_X : X \to \R$.
+
+    Suppose you have an element
+
+    $$(r_0, P_{X_0}) : FX = \R \times (\Delta(X))^A$$
+
+    After applying $F V_X$, we get:
+
+    $$(r_0, P^\M [x_0 \lto{a} V_X^{-1}[\{\cdot\}]]) : F[0,T]_\R$$
+
+    Now let $\eval : F[0,T]_\R \to \R$ be the evaluation function.
+    This can be arbitrary, but a natural choice is to take the current reward, and sum it with the discounted expected next value.
+    To get rid of $a$ we can apply $\max$. Applying this to the above:
+
+    $$r_0 + \gamma \max_{a : A} \sum_{t \in [0,T]_\R} t P^\M [x_0 \lto{a} V_X^{-1}[\{t\}]]$$
+
+    In particular, if $(r_0, P_{X_0})$ is the output from state $x_0$, then we get that the above is:
+
+    $$ = r^\M(x_0) + \gamma \max_{a : A} \ev_{x_0 \lto{a} x'} [V_X(x')] $$
+
+    Note that this is exactly the \refdef{bellman-operator} $\T$, applied to $V_X$.
+
+    \todo[inline]{you also need to bound reward sutiably, like instead of $\R$ do $[0, (1-\gamma) T]_\R$}
+
+    Thus the Kantorovich metric for MDPs is:
+
+\end{resb}
+
+
+
+\begin{expb}{Not nice metric for functor}
+    Consider the functor $F : X \to A \times X$. Suppose you wanted to find the wasserstein metric.
+
+    Note that from \refdef{coupling}, suppose $(x_0,b_0), (x_1, b_1)$ are two elements of $FX$. Then $(x_0,b_0)$ can only be coupled iff $b_0 = b_1$.
+
+    This is not what you would expect if $B$ had some sort of metric structure already, say $B = \R$. In fact the wasserstein metric removes all metric information (namely it assumes the discrete topology on $B$ by default).
+
+    To fix this issue, we will introduce multifunctors, and lifting pseudometrics of mutlifunctors.
+
+\end{expb}
+
+
+
 
 
 \newpage
@@ -1752,7 +1853,7 @@ Note that also any pseudometric space $(X,d^X)$ can be thought of as an object i
         \end{tikzcd}\]
 \end{defB}
 \begin{defB}{Weak Pullback}
-    A weak pullback is a weak limit of a span $X \lto{\phi_X} Z \lfrom{\phi_Y} Y$. I.e. see \refdef{pullback}, but the map  $: Q \to P$ does not have to be unique:
+    A weak pullback is a weak limit of a cospan $X \lto{\phi_X} Z \lfrom{\phi_Y} Y$. I.e. see \refdef{pullback}, but the map  $: Q \to P$ does not have to be unique:
     % https://q.uiver.app/#q=WzAsNSxbMSwxLCJQIl0sWzEsMiwiWCJdLFsyLDEsIlkiXSxbMiwyLCJaIl0sWzAsMCwiUSJdLFsxLDMsIlxccGhpX1giLDJdLFsyLDMsIlxccGhpX1oiXSxbMCwxLCJwX1giLDJdLFswLDIsInBfWSJdLFs0LDEsInFfWCIsMix7ImN1cnZlIjozfV0sWzQsMiwicV9ZIiwwLHsiY3VydmUiOi0zfV0sWzQsMCwiXFxleGlzdHMiLDAseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XV0=
     \[\begin{tikzcd}[ampersand replacement=\&]
             Q \\
@@ -1770,7 +1871,7 @@ Note that also any pseudometric space $(X,d^X)$ can be thought of as an object i
 \end{defB}
 
 \subsection{Comparing Bisimulation}
-First we will need the following result:
+First we will need the following definitions/results:
 
 \begin{defb}{Weak pullback preserving functor}
     Let $F : C \to D$ be a functor.
@@ -1797,121 +1898,157 @@ First we will need the following result:
             \arrow["{F\phi_X}"', from=2-1, to=2-2]
         \end{tikzcd}\]
 
+    (meaning if there is a $Q \in \Obj (D)$ with morphisms to $FX$ and $FY$, it must factor through $FP$)
+
 \end{defb}
 
 
-\begin{resb}{Weak pullbacks on $F$-coalgebras}
-    Let $C$ be a category with weak pullbacks.
+% \begin{resb}{Weak pullbacks on $F$-coalgebras}
+%     Let $C$ be a category with pullbacks.
 
-    Suppose endofunctor $F: C \to C$ preserves weak pullbacks.
+%     \todo[inline]{Maybe works with weak pullbacks too but not sure how yet}
 
-    Then the category of $F$ coalgebras has weak pullbacks.
-    \dline
+%     Suppose endofunctor $F: C \to C$ preserves weak pullbacks.
 
-    % \begin{proof}
-    Suppose you have a cospan $c_X \lto{\phi_X} c_Z \lfrom{\phi_Y} c_Y$, where $c_X : X \to FX$, $c_Y : Y \to FY$, $c_Z : Z \to FZ$.
+%     Then the category of $F$ coalgebras has weak pullbacks.
+%     \dline
 
-    Becasue $C$ has weak pullbacks, take $(P, p_X : P \to X, p_Y : P \to Y)$ to be the pullback of
+%     \begin{proof}
+%         Suppose you have a cospan $c_X \lto{\phi_X} c_Z \lfrom{\phi_Y} c_Y$, where $c_X : X \to FX$, $c_Y : Y \to FY$, $c_Z : Z \to FZ$.
 
-    $X \lto{\phi_X} Z \lfrom{\phi_Y} Y$. Using the definition of coalgebra homomorphisms, we get TFDC:
-    % https://q.uiver.app/#q=WzAsNyxbMCwwLCJYIl0sWzIsMiwiWiJdLFs0LDQsIlkiXSxbMCwyLCJGWCJdLFsyLDQsIkZaIl0sWzQsNiwiRlkiXSxbNSwwLCJQIl0sWzAsMywiY19YIiwyXSxbMSw0LCJjX1oiLDFdLFsyLDUsImNfWSIsMl0sWzMsNCwiRiBcXHBoaV9YIiwxXSxbMCwxLCJcXHBoaV9YIiwxXSxbMiwxLCJcXHBoaV9ZIiwxXSxbNSw0LCJGXFxwaGlfWSIsMV0sWzYsMCwicF9YIiwxXSxbNiwyXV0=
-    \[\begin{tikzcd}[ampersand replacement=\&]
-            X \&\&\&\&\& P \\
-            \\
-            FX \&\& Z \\
-            \\
-            \&\& FZ \&\& Y \\
-            \\
-            \&\&\&\& FY
-            \arrow["{c_X}"', from=1-1, to=3-1]
-            \arrow["{\phi_X}"{description}, from=1-1, to=3-3]
-            \arrow["{p_X}"{description}, from=1-6, to=1-1]
-            \arrow[from=1-6, to=5-5]
-            \arrow["{F \phi_X}"{description}, from=3-1, to=5-3]
-            \arrow["{c_Z}"{description}, from=3-3, to=5-3]
-            \arrow["{\phi_Y}"{description}, from=5-5, to=3-3]
-            \arrow["{c_Y}"', from=5-5, to=7-5]
-            \arrow["{F\phi_Y}"{description}, from=7-5, to=5-3]
-        \end{tikzcd}\]
+%         Because $C$ has weak pullbacks, take $(P, p_X : P \to X, p_Y : P \to Y)$ to be the pullback of
 
-    Then because $F$ preserves weak pullbacks, we can add the pullback $(FP, Fp_X : FP \to FX, Fp_Y : FP \to FY)$. Then notice that $c_X \circ p_X : P \to FX$, and $c_Y \circ p_Y : P \to FY$.
+%         $X \lto{\phi_X} Z \lfrom{\phi_Y} Y$. Using the definition of coalgebra homomorphisms, we get TFDC:
+%         % https://q.uiver.app/#q=WzAsNyxbMCwwLCJYIl0sWzIsMiwiWiJdLFs0LDQsIlkiXSxbMCwyLCJGWCJdLFsyLDQsIkZaIl0sWzQsNiwiRlkiXSxbNSwwLCJQIl0sWzAsMywiY19YIiwyXSxbMSw0LCJjX1oiLDFdLFsyLDUsImNfWSIsMl0sWzMsNCwiRiBcXHBoaV9YIiwxXSxbMCwxLCJcXHBoaV9YIiwxXSxbMiwxLCJcXHBoaV9ZIiwxXSxbNSw0LCJGXFxwaGlfWSIsMV0sWzYsMCwicF9YIiwxXSxbNiwyXV0=
+%         \[\begin{tikzcd}[ampersand replacement=\&]
+%                 X \&\&\&\&\& P \\
+%                 \\
+%                 FX \&\& Z \\
+%                 \\
+%                 \&\& FZ \&\& Y \\
+%                 \\
+%                 \&\&\&\& FY
+%                 \arrow["{c_X}"', from=1-1, to=3-1]
+%                 \arrow["{\phi_X}"{description}, from=1-1, to=3-3]
+%                 \arrow["{p_X}"{description}, from=1-6, to=1-1]
+%                 \arrow[from=1-6, to=5-5]
+%                 \arrow["{F \phi_X}"{description}, from=3-1, to=5-3]
+%                 \arrow["{c_Z}"{description}, from=3-3, to=5-3]
+%                 \arrow["{\phi_Y}"{description}, from=5-5, to=3-3]
+%                 \arrow["{c_Y}"', from=5-5, to=7-5]
+%                 \arrow["{F\phi_Y}"{description}, from=7-5, to=5-3]
+%             \end{tikzcd}\]
 
-    So becasue $FP$ is a pullback, there must be a map $f : P \to FP$. As a diagram, this means TFDC:
-    % https://q.uiver.app/#q=WzAsOCxbMCwwLCJYIl0sWzIsMiwiWiJdLFs0LDQsIlkiXSxbMCwyLCJGWCJdLFsyLDQsIkZaIl0sWzQsNiwiRlkiXSxbNSwyLCJGUCJdLFs1LDAsIlAiXSxbMCwzLCJjX1giLDJdLFsxLDQsImNfWiIsMV0sWzIsNSwiY19ZIiwyXSxbMyw0LCJGIFxccGhpX1giLDFdLFswLDEsIlxccGhpX1giLDFdLFsyLDEsIlxccGhpX1kiLDFdLFs1LDQsIkZcXHBoaV9ZIiwxXSxbNiwzLCJGcF9YIiwxXSxbNiw1LCJGcF9ZIiwxXSxbNywwLCJwX1giLDFdLFs3LDJdLFs3LDYsIlxcZXhpc3RzICBjX1AiLDEseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XV0=
-    \[\begin{tikzcd}[ampersand replacement=\&]
-            X \&\&\&\&\& P \\
-            \\
-            FX \&\& Z \&\&\& FP \\
-            \\
-            \&\& FZ \&\& Y \\
-            \\
-            \&\&\&\& FY
-            \arrow["{c_X}"', from=1-1, to=3-1]
-            \arrow["{\phi_X}"{description}, from=1-1, to=3-3]
-            \arrow["{p_X}"{description}, from=1-6, to=1-1]
-            \arrow["{\exists  c_P}"{description}, dashed, from=1-6, to=3-6]
-            \arrow[from=1-6, to=5-5]
-            \arrow["{F \phi_X}"{description}, from=3-1, to=5-3]
-            \arrow["{c_Z}"{description}, from=3-3, to=5-3]
-            \arrow["{Fp_X}"{description}, from=3-6, to=3-1]
-            \arrow["{Fp_Y}"{description}, from=3-6, to=7-5]
-            \arrow["{\phi_Y}"{description}, from=5-5, to=3-3]
-            \arrow["{c_Y}"', from=5-5, to=7-5]
-            \arrow["{F\phi_Y}"{description}, from=7-5, to=5-3]
-        \end{tikzcd}\]
-    Thus in the category of coalgebras:
-    % https://q.uiver.app/#q=WzAsNCxbMSwwLCJjX1AiXSxbMCwxLCJjX1giXSxbMSwyLCJjX1oiXSxbMiwxLCJjX1kiXSxbMCwxLCJwX1giLDJdLFswLDMsInBfWSJdLFsxLDIsIlxccGhpX1giLDJdLFszLDIsIlxccGhpX1kiXV0=
-    \[\begin{tikzcd}[ampersand replacement=\&]
-            \& {c_P} \\
-            {c_X} \&\& {c_Y} \\
-            \& {c_Z}
-            \arrow["{p_X}"', from=1-2, to=2-1]
-            \arrow["{p_Y}", from=1-2, to=2-3]
-            \arrow["{\phi_X}"', from=2-1, to=3-2]
-            \arrow["{\phi_Y}", from=2-3, to=3-2]
-        \end{tikzcd}\]
-    Now take any other coalgebra $c_Q : Q \to FQ$, with homomorphisms $q_X : c_Q \to c_X$, and $q_Y : c_Q \to c_Y$.
+%         Then because $F$ preserves weak pullbacks, we can add the pullback $(FP, Fp_X : FP \to FX, Fp_Y : FP \to FY)$. Then notice that $c_X \circ p_X : P \to FX$, and $c_Y \circ p_Y : P \to FY$.
 
-    Because $P$ is a pullback, there must exist some $g : Q \to P$ in the diagram below, that commutes with the pullback square $(P,X,Y,Z)$.
+%         So becasue $FP$ is a pullback, there must be a map $f : P \to FP$. As a diagram, this means TFDC:
+%         % https://q.uiver.app/#q=WzAsOCxbMCwwLCJYIl0sWzIsMiwiWiJdLFs0LDQsIlkiXSxbMCwyLCJGWCJdLFsyLDQsIkZaIl0sWzQsNiwiRlkiXSxbNSwyLCJGUCJdLFs1LDAsIlAiXSxbMCwzLCJjX1giLDJdLFsxLDQsImNfWiIsMV0sWzIsNSwiY19ZIiwyXSxbMyw0LCJGIFxccGhpX1giLDFdLFswLDEsIlxccGhpX1giLDFdLFsyLDEsIlxccGhpX1kiLDFdLFs1LDQsIkZcXHBoaV9ZIiwxXSxbNiwzLCJGcF9YIiwxXSxbNiw1LCJGcF9ZIiwxXSxbNywwLCJwX1giLDFdLFs3LDJdLFs3LDYsIlxcZXhpc3RzICBjX1AiLDEseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XV0=
+%         \[\begin{tikzcd}[ampersand replacement=\&]
+%                 X \&\&\&\&\& P \\
+%                 \\
+%                 FX \&\& Z \&\&\& FP \\
+%                 \\
+%                 \&\& FZ \&\& Y \\
+%                 \\
+%                 \&\&\&\& FY
+%                 \arrow["{c_X}"', from=1-1, to=3-1]
+%                 \arrow["{\phi_X}"{description}, from=1-1, to=3-3]
+%                 \arrow["{p_X}"{description}, from=1-6, to=1-1]
+%                 \arrow["{\exists  c_P}"{description}, dashed, from=1-6, to=3-6]
+%                 \arrow[from=1-6, to=5-5]
+%                 \arrow["{F \phi_X}"{description}, from=3-1, to=5-3]
+%                 \arrow["{c_Z}"{description}, from=3-3, to=5-3]
+%                 \arrow["{Fp_X}"{description}, from=3-6, to=3-1]
+%                 \arrow["{Fp_Y}"{description}, from=3-6, to=7-5]
+%                 \arrow["{\phi_Y}"{description}, from=5-5, to=3-3]
+%                 \arrow["{c_Y}"', from=5-5, to=7-5]
+%                 \arrow["{F\phi_Y}"{description}, from=7-5, to=5-3]
+%             \end{tikzcd}\]
+%         Thus in the category of coalgebras:
+%         % https://q.uiver.app/#q=WzAsNCxbMywwLCJjX1AiXSxbMCwwLCJjX1giXSxbMSwxLCJjX1oiXSxbMiwyLCJjX1kiXSxbMCwxLCJwX1giLDJdLFswLDMsInBfWSJdLFsxLDIsIlxccGhpX1giLDJdLFszLDIsIlxccGhpX1kiXV0=
+%         \[\begin{tikzcd}[ampersand replacement=\&]
+%                 {c_X} \&\&\& {c_P} \\
+%                 \& {c_Z} \\
+%                 \&\& {c_Y}
+%                 \arrow["{\phi_X}"', from=1-1, to=2-2]
+%                 \arrow["{p_X}"', from=1-4, to=1-1]
+%                 \arrow["{p_Y}", from=1-4, to=3-3]
+%                 \arrow["{\phi_Y}", from=3-3, to=2-2]
+%             \end{tikzcd}\]
+%         Now take any other coalgebra $c_Q : Q \to FQ$, with homomorphisms $q_X : c_Q \to c_X$, and $q_Y : c_Q \to c_Y$.
 
-    \todo[inline]{finish. I think this works, $g$ must exist, then just need to figure out why/if the $Fg$ part works.}
+%         Because $P$ is a pullback, there must exist some $g : Q \to P$ that commutes with the pullback square $(P,X,Y,Z)$.
 
-    \newpage
+%         Likewise from functorality, $Fg: FQ \to FP$ must commute with the pullback square $(FP, FX, FY, FZ)$.
 
 
-    % https://q.uiver.app/#q=WzAsMTAsWzAsMiwiWCJdLFsyLDQsIloiXSxbNCw2LCJZIl0sWzAsNCwiRlgiXSxbMiw2LCJGWiJdLFs0LDgsIkZZIl0sWzgsMCwiUSJdLFs4LDIsIkZRIl0sWzUsNCwiRlAiXSxbNSwyLCJQIl0sWzAsMywiY19YIiwyXSxbMSw0LCJjX1oiLDFdLFsyLDUsImNfWSIsMl0sWzMsNCwiRiBcXHBoaV9YIiwxXSxbMCwxLCJcXHBoaV9YIiwxXSxbMiwxLCJcXHBoaV9ZIiwxXSxbNSw0LCJGXFxwaGlfWSIsMV0sWzYsMCwicV9YIiwxLHsibGFiZWxfcG9zaXRpb24iOjIwLCJjdXJ2ZSI6Mn1dLFs2LDIsInFfWSIsMSx7ImxhYmVsX3Bvc2l0aW9uIjoyMCwiY3VydmUiOi00fV0sWzcsMywiRnFfWCIsMSx7ImxhYmVsX3Bvc2l0aW9uIjoyMCwiY3VydmUiOjJ9XSxbNiw3LCJjX1EiXSxbOCwzLCJGcF9YIiwxXSxbOCw1LCJGcF9ZIiwxXSxbOSwwLCJwX1giLDFdLFs5LDJdLFs5LDgsIlxcZXhpc3RzICBjX1AiLDEseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XSxbNiw5LCJcXGV4aXN0cyBnIiwxLHsic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZGFzaGVkIn19fV0sWzcsNSwiRnFfWSIsMSx7ImN1cnZlIjotNH1dLFs3LDgsIkZnIiwxXV0=
-    \[\begin{tikzcd}[ampersand replacement=\&]
-            \&\&\&\&\&\&\&\& Q \\
-            \\
-            X \&\&\&\&\& P \&\&\& FQ \\
-            \\
-            FX \&\& Z \&\&\& FP \\
-            \\
-            \&\& FZ \&\& Y \\
-            \\
-            \&\&\&\& FY
-            \arrow["{q_X}"{description, pos=0.2}, curve={height=12pt}, from=1-9, to=3-1]
-            \arrow["{\exists g}"{description}, dashed, from=1-9, to=3-6]
-            \arrow["{c_Q}", from=1-9, to=3-9]
-            \arrow["{q_Y}"{description, pos=0.2}, curve={height=-24pt}, from=1-9, to=7-5]
-            \arrow["{c_X}"', from=3-1, to=5-1]
-            \arrow["{\phi_X}"{description}, from=3-1, to=5-3]
-            \arrow["{p_X}"{description}, from=3-6, to=3-1]
-            \arrow["{\exists  c_P}"{description}, dashed, from=3-6, to=5-6]
-            \arrow[from=3-6, to=7-5]
-            \arrow["{Fq_X}"{description, pos=0.2}, curve={height=12pt}, from=3-9, to=5-1]
-            \arrow["Fg"{description}, from=3-9, to=5-6]
-            \arrow["{Fq_Y}"{description}, curve={height=-24pt}, from=3-9, to=9-5]
-            \arrow["{F \phi_X}"{description}, from=5-1, to=7-3]
-            \arrow["{c_Z}"{description}, from=5-3, to=7-3]
-            \arrow["{Fp_X}"{description}, from=5-6, to=5-1]
-            \arrow["{Fp_Y}"{description}, from=5-6, to=9-5]
-            \arrow["{\phi_Y}"{description}, from=7-5, to=5-3]
-            \arrow["{c_Y}"', from=7-5, to=9-5]
-            \arrow["{F\phi_Y}"{description}, from=9-5, to=7-3]
-        \end{tikzcd}\]
-    % \end{proof}
-\end{resb}
+
+%         Thus the following diagram almost commutes:
+%         % https://q.uiver.app/#q=WzAsMTAsWzAsMiwiWCJdLFsyLDQsIloiXSxbNCw2LCJZIl0sWzAsNCwiRlgiXSxbMiw2LCJGWiJdLFs0LDgsIkZZIl0sWzgsMCwiUSJdLFs4LDIsIkZRIl0sWzUsNCwiRlAiXSxbNSwyLCJQIl0sWzAsMywiY19YIiwyXSxbMSw0LCJjX1oiLDFdLFsyLDUsImNfWSIsMl0sWzMsNCwiRiBcXHBoaV9YIiwxXSxbMCwxLCJcXHBoaV9YIiwxXSxbMiwxLCJcXHBoaV9ZIiwxXSxbNSw0LCJGXFxwaGlfWSIsMV0sWzYsMCwicV9YIiwxLHsibGFiZWxfcG9zaXRpb24iOjIwLCJjdXJ2ZSI6Mn1dLFs2LDIsInFfWSIsMSx7ImxhYmVsX3Bvc2l0aW9uIjoyMCwiY3VydmUiOi00fV0sWzcsMywiRnFfWCIsMSx7ImxhYmVsX3Bvc2l0aW9uIjoyMCwiY3VydmUiOjJ9XSxbNiw3LCJjX1EiXSxbOCwzLCJGcF9YIiwxXSxbOCw1LCJGcF9ZIiwxXSxbOSwwLCJwX1giLDFdLFs5LDJdLFs5LDgsIlxcZXhpc3RzICBjX1AiLDEseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XSxbNiw5LCJcXGV4aXN0cyBnIiwxLHsic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZGFzaGVkIn19fV0sWzcsNSwiRnFfWSIsMSx7ImN1cnZlIjotNH1dLFs3LDgsIkZnIiwxXV0=
+%         \[\begin{tikzcd}[ampersand replacement=\&]
+%             \&\&\&\&\&\&\&\& Q \\
+%             \\
+%             X \&\&\&\&\& P \&\&\& FQ \\
+%             \\
+%             FX \&\& Z \&\&\& FP \\
+%             \\
+%             \&\& FZ \&\& Y \\
+%             \\
+%             \&\&\&\& FY
+%             \arrow["{q_X}"{description, pos=0.2}, curve={height=12pt}, from=1-9, to=3-1]
+%             \arrow["{\exists g}"{description}, dashed, from=1-9, to=3-6]
+%             \arrow["{c_Q}", from=1-9, to=3-9]
+%             \arrow["{q_Y}"{description, pos=0.2}, curve={height=-24pt}, from=1-9, to=7-5]
+%             \arrow["{c_X}"', from=3-1, to=5-1]
+%             \arrow["{\phi_X}"{description}, from=3-1, to=5-3]
+%             \arrow["{p_X}"{description}, from=3-6, to=3-1]
+%             \arrow["{\exists  c_P}"{description}, dashed, from=3-6, to=5-6]
+%             \arrow[from=3-6, to=7-5]
+%             \arrow["{Fq_X}"{description, pos=0.2}, curve={height=12pt}, from=3-9, to=5-1]
+%             \arrow["Fg"{description}, from=3-9, to=5-6]
+%             \arrow["{Fq_Y}"{description}, curve={height=-24pt}, from=3-9, to=9-5]
+%                 \arrow["{F \phi_X}"{description}, from=5-1, to=7-3]
+%                 \arrow["{c_Z}"{description}, from=5-3, to=7-3]
+%                 \arrow["{Fp_X}"{description}, from=5-6, to=5-1]
+%                 \arrow["{Fp_Y}"{description}, from=5-6, to=9-5]
+%                 \arrow["{\phi_Y}"{description}, from=7-5, to=5-3]
+%                 \arrow["{c_Y}"', from=7-5, to=9-5]
+%                 \arrow["{F\phi_Y}"{description}, from=9-5, to=7-3]
+%             \end{tikzcd}\]
+
+%             All that remains to show is that TFDC:
+%                     % https://q.uiver.app/#q=WzAsNCxbMCwwLCJQIl0sWzAsMSwiRlAiXSxbMSwwLCJRIl0sWzEsMSwiRlEiXSxbMCwxLCJjX1AiLDJdLFsyLDMsImNfUSJdLFsyLDAsImciLDJdLFszLDEsIkZnIl1d
+%                     \[\begin{tikzcd}[ampersand replacement=\&]
+%                             P \& Q \\
+%                             FP \& FQ
+%                             \arrow["{c_P}"', from=1-1, to=2-1]
+%                             \arrow["g"', from=1-2, to=1-1]
+%                             \arrow["{c_Q}", from=1-2, to=2-2]
+%                             \arrow["Fg", from=2-2, to=2-1]
+%                         \end{tikzcd}\]
+%         Note that to show this fact, because $C$ has pullbacks, note that $Q$ is a cone over $FX \lto{F\phi_X} FZ \lfrom{F\phi_Y} $
+
+
+
+%         Thus in the category of $F$ coalgebras, we have:
+%         % https://q.uiver.app/#q=WzAsNSxbMywxLCJjX1AiXSxbMCwxLCJjX1giXSxbMSwyLCJjX1oiXSxbMiwzLCJjX1kiXSxbNSwwLCJjX1EiXSxbMCwxLCJwX1giLDJdLFswLDMsInBfWSJdLFsxLDIsIlxccGhpX1giLDJdLFszLDIsIlxccGhpX1kiXSxbNCwxLCJxX1giLDIseyJjdXJ2ZSI6Mn1dLFs0LDMsInFfWSIsMCx7ImN1cnZlIjotM31dLFs0LDAsIlxcZXhpc3RzIGciLDEseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkb3R0ZWQifX19XV0=
+%         \[\begin{tikzcd}[ampersand replacement=\&]
+%                 \&\&\&\&\& {c_Q} \\
+%                 {c_X} \&\&\& {c_P} \\
+%                 \& {c_Z} \\
+%                 \&\& {c_Y}
+%                 \arrow["{q_X}"', curve={height=12pt}, from=1-6, to=2-1]
+%                 \arrow["{\exists g}"{description}, dotted, from=1-6, to=2-4]
+%                 \arrow["{q_Y}", curve={height=-18pt}, from=1-6, to=4-3]
+%                 \arrow["{\phi_X}"', from=2-1, to=3-2]
+%                 \arrow["{p_X}"', from=2-4, to=2-1]
+%                 \arrow["{p_Y}", from=2-4, to=4-3]
+%                 \arrow["{\phi_Y}", from=4-3, to=3-2]
+%             \end{tikzcd}\]
+
+%         which shows that this category has weak pullbacks.
+%     \end{proof}
+% \end{resb}
 \begin{resB}[AM-vs-beh-equiv]{AM Bisimulation is weaker than Behavioral Equivalence}
     Suppose $F : C \to C$ preserves weak pullbacks, and $C$ has weak pullbacks. Then for any AM bisimulation $c_X \lfrom{\phi_X} c_R \lto{\phi_Y} c_Y$ there is a behavioral equivalence.
 
@@ -1944,24 +2081,92 @@ First we will need the following result:
 (A slightly more involved result shows how to build a final coalgebra)
 
 
-\begin{defb}{Cochain, Chain}
-    A cochain is a diagram of the form:
+\begin{defB}{(Ordinal Indexed) Chain, Cochain (new?)}
+    Given an ordinal $\alpha$, an $\alpha$-chain is a diagram of the form:
+    % https://q.uiver.app/#q=WzAsOCxbMCwwLCJBXzAiXSxbMSwwLCJBXzEiXSxbMiwwLCJBXzIiXSxbMywwLCJcXGNkb3RzIl0sWzQsMCwiQV9cXG9tZWdhIFxcY29uZyBcXG1hdGhybXtjb2xpbX0oQV8wXFx0b1xcY2RvdHMpIl0sWzUsMCwiQV97XFxvbWVnYSArIDF9Il0sWzYsMCwiXFxjZG90cyJdLFs3LDAsIkFfXFxhbHBoYSJdLFswLDFdLFsxLDJdLFsyLDNdLFszLDRdLFs0LDVdLFs1LDZdLFs2LDddXQ==
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            {A_0} \& {A_1} \& {A_2} \& \cdots \& {A_\omega \cong \mathrm{colim}(A_0\to\cdots)} \& {A_{\omega + 1}} \& \cdots \& {A_\alpha}
+            \arrow[from=1-1, to=1-2]
+            \arrow[from=1-2, to=1-3]
+            \arrow[from=1-3, to=1-4]
+            \arrow[from=1-4, to=1-5]
+            \arrow[from=1-5, to=1-6]
+            \arrow[from=1-6, to=1-7]
+            \arrow[from=1-7, to=1-8]
+        \end{tikzcd}\]
 
+    Likewise a $\alpha$-cochain is the dual, i.e. a diagram of the form:
+    % https://q.uiver.app/#q=WzAsOCxbMCwwLCJBXzAiXSxbMSwwLCJBXzEiXSxbMiwwLCJBXzIiXSxbMywwLCJcXGNkb3RzIl0sWzQsMCwiQV9cXG9tZWdhIFxcY29uZyBcXG1hdGhybXtsaW19KEFfMFxcbGVmdGFycm93XFxjZG90cykiXSxbNSwwLCJBX3tcXG9tZWdhICsgMX0iXSxbNiwwLCJcXGNkb3RzIl0sWzcsMCwiQV9cXGFscGhhIl0sWzEsMF0sWzIsMV0sWzMsMl0sWzQsM10sWzUsNF0sWzYsNV0sWzcsNl1d
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            {A_0} \& {A_1} \& {A_2} \& \cdots \& {A_\omega \cong \mathrm{lim}(A_0\leftarrow\cdots)} \& {A_{\omega + 1}} \& \cdots \& {A_\alpha}
+            \arrow[from=1-2, to=1-1]
+            \arrow[from=1-3, to=1-2]
+            \arrow[from=1-4, to=1-3]
+            \arrow[from=1-5, to=1-4]
+            \arrow[from=1-6, to=1-5]
+            \arrow[from=1-7, to=1-6]
+            \arrow[from=1-8, to=1-7]
+        \end{tikzcd}\]
+\end{defB}
 
-
-\end{defb}
-
-\begin{defb}{Cochain, Chain}
-    A cochain is a diagram of the form:
-
-
-
-\end{defb}
 %(https://drops.dagstuhl.de/storage/00lipics/lipics-vol029-fsttcs2014/LIPIcs.FSTTCS.2014.403/LIPIcs.FSTTCS.2014.403.pdf)
-\begin{defb}{Constructing the final coalgebra}
-    Let $C$ be a category with terminal object $*$, and limits of all ordinal indexed cochains
+\begin{resB}{Final coalgebra exists (Pohlova '73, Adamek '74)}
+    Let $C$ be a cateogory with terminal object $1$.
 
-    \todo[inline]{Try building final coalgebra inductivly?}
-\end{defb}
+    Consider the following $\omega$-cochain:
+
+    % https://q.uiver.app/#q=WzAsNSxbMCwyLCIxIl0sWzEsMiwiRigxKSJdLFsyLDIsIkZeMigxKSJdLFsyLDAsIkxfRj0gXFxsaW0oMSBcXGxlZnRhcnJvdyBGKDEpIFxcbGVmdGFycm93IFxcY2RvdHMpIl0sWzMsMiwiXFxjZG90cyJdLFsxLDAsIlxcZXhpc3RzICFmIiwwLHsic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZGFzaGVkIn19fV0sWzIsMSwiRihmKSJdLFszLDAsIlxcZXhpc3RzICFsXzAiLDEseyJzdHlsZSI6eyJib2R5Ijp7Im5hbWUiOiJkYXNoZWQifX19XSxbMywxLCJsXzEiLDFdLFszLDIsImxfMiIsMV0sWzQsMl0sWzMsNF1d
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            \&\& {L_F= \lim(1 \leftarrow F(1) \leftarrow \cdots)} \\
+            \\
+            1 \& {F(1)} \& {F^2(1)} \& \cdots
+            \arrow["{\exists !l_0}"{description}, dashed, from=1-3, to=3-1]
+            \arrow["{l_1}"{description}, from=1-3, to=3-2]
+            \arrow["{l_2}"{description}, from=1-3, to=3-3]
+            \arrow[from=1-3, to=3-4]
+            \arrow["{\exists !f}", dashed, from=3-2, to=3-1]
+            \arrow["{F(f)}", from=3-3, to=3-2]
+            \arrow[from=3-4, to=3-3]
+        \end{tikzcd}\]
+    Suppose that $L_F$ exists, and that $F$ preserves this limit. Then:
+    \begin{itemize}
+        \item There exists a coalgebra $: L_F \to F(L_F)$
+        \item This coalgbra is final
+    \end{itemize}
+
+    \dline
+    \begin{proof}
+
+        Now consider shifted chain:
+        % https://q.uiver.app/#q=WzAsNCxbMCwyLCJGKDEpIl0sWzEsMiwiRl4yKDEpIl0sWzEsMCwiTF9GXntcXG1hdGhybXtTSH19PSBcXGxpbSggRigxKSBcXGxlZnRhcnJvdyBcXGNkb3RzKSJdLFsyLDIsIlxcY2RvdHMiXSxbMSwwLCJGKGYpIl0sWzIsMCwibF8xIiwxXSxbMiwxLCJsXzIiLDFdLFszLDFdLFsyLDNdXQ==
+        \[\begin{tikzcd}[ampersand replacement=\&]
+                \& {L_F^{\mathrm{SH}}= \lim( F(1) \leftarrow \cdots)} \\
+                \\
+                {F(1)} \& {F^2(1)} \& \cdots
+                \arrow["{l_1}"{description}, from=1-2, to=3-1]
+                \arrow["{l_2}"{description}, from=1-2, to=3-2]
+                \arrow[from=1-2, to=3-3]
+                \arrow["{F(f)}", from=3-2, to=3-1]
+                \arrow[from=3-3, to=3-2]
+            \end{tikzcd}\]
+        Since $F$ preserves this limit, we have that $F(L_F)$ is a limit of the shifted chain and $l_1, \ldots$. Thus we have two limts so they must be isomorphic: $\mathrm{pres}_F : F(L_F) \cong L_F^{\mathrm{SH}}$.
+
+        Note $L_F^{\mathrm{SH}}$ is also a cone over $1 \lfrom{f} F(1) \leftarrow \cdots$ (take $!: L_F^{\mathrm{SH}} \to 1$)
+
+        ($L_F$ is a limit) $\implies  \exists ! : L_F^{\mathrm{SH}} \to L_F$.
+
+        Note $L_F$ is a cone over $F(1) \lfrom{F(f)} F^2(1) \leftarrow \cdots$
+
+        ($L_F^{\mathrm{SH}}$ is a limit ) $\implies \exists ! : L_F \to L_F^{\mathrm{SH}}$.
+
+        Thus $L_F \cong L_F^{\mathrm{SH}}$.
+
+        Now take the coalgebra $L_F \to L_F^{\mathrm{SH}} \lto{\mathrm{pres}_F} F(L_F)$.
+
+    \end{proof}
+
+
+\end{resB}
+
 
 \end{document}
