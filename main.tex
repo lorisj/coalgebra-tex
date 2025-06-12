@@ -1797,7 +1797,67 @@ Note that also any pseudometric space $(X,d^X)$ can be thought of as an object i
 
 \end{resb}
 
+\section{Wassersten metric}
 
+\begin{defB}{Wassersten metric}
+    Let $F  : \catset \to \catset$, and $\eval$ as above. For every pseudometric $(X,d^X)$ define the Wasserstein distance as:
+    \begin{align}
+        d_{W, (X,d^X)}(t_1, t_2) & \eqdef \inf \{ \tilde F( d^X(t))  | t\in \Gamma (t_1, t_2)\} \\
+                                 & = \inf \{\eval \circ F (d^X (t)) | t \in \Gamma(t_1, t_2) \}
+    \end{align}
+    As a diagram, it is the $\inf$ over all $c$:
+    % https://q.uiver.app/#q=WzAsNixbNCwyLCJGWF4yIl0sWzQsNCwiRlswLFRdX1xcUiJdLFswLDQsIlswLFRdX1xcUiJdLFswLDIsIkZYIFxcdGltZXMgRlgiXSxbMiwwLCJGWCJdLFsyLDEsIkZYIl0sWzAsMSwiRmReWCJdLFsxLDIsIlxcZXZhbCJdLFszLDAsIlxcdGV4dHtsYXJnZXN0IH0gYyBcXFxcXFx0ZXh0e3MudC4gREN9IiwyLHsic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoic3F1aWdnbHkifX19XSxbMyw0LCJcXHBpXzEiLDAseyJjdXJ2ZSI6LTJ9XSxbMyw1LCJcXHBpXzIiLDAseyJjdXJ2ZSI6LTF9XSxbMCw0LCJGXFxwaV8xIiwyLHsiY3VydmUiOjJ9XSxbMCw1LCJGXFxwaV8yIiwyLHsiY3VydmUiOjF9XSxbMywyLCJcXGVxZGVmIGRfe1csIChYLGReWCl9IiwyLHsic3R5bGUiOnsiYm9keSI6eyJuYW1lIjoiZGFzaGVkIn19fV1d
+    \[\begin{tikzcd}[ampersand replacement=\&]
+            \&\& FX \\
+            \&\& FX \\
+            {FX \times FX} \&\&\&\& {FX^2} \\
+            \\
+            {[0,T]_\R} \&\&\&\& {F[0,T]_\R}
+            \arrow["{\pi_1}", curve={height=-12pt}, from=3-1, to=1-3]
+            \arrow["{\pi_2}", curve={height=-6pt}, from=3-1, to=2-3]
+            \arrow["\begin{array}{c} \text{largest } c \\\text{s.t. DC} \end{array}"', squiggly, from=3-1, to=3-5]
+            \arrow["{\eqdef d_{W, (X,d^X)}}"', dashed, from=3-1, to=5-1]
+            \arrow["{F\pi_1}"', curve={height=12pt}, from=3-5, to=1-3]
+            \arrow["{F\pi_2}"', curve={height=6pt}, from=3-5, to=2-3]
+            \arrow["{Fd^X}", from=3-5, to=5-5]
+            \arrow["\eval", from=5-5, to=5-1]
+        \end{tikzcd}\]
+    where $c : FX \times FX$ acts as follows: for a given $(t_1, t_2) : FX \times FX$ picks the $t :  FX^2$ such that the result at $[0,T]_\R$ is largest.
+
+\end{defB}
+
+
+Note that under a general $\eval$, it can be that $d_{W,(X,d^X)}$ is not a pseudometric. Thus it is necissary to have a ``well-behaved" evaluation function, i.e. one that guarentees that the above construction results in a pseudometric.
+
+\begin{defB}{Well behaved evalutation function}
+    An evaluation function $\eval : F[0,T]_\R \to [0,T]_\R$ is well behaved iff all of the following are true:
+    \begin{enumerate}
+        \item $\tilde F$ is monotone:
+
+              For $V_1, V_2 : X \to [0,T]_\R$ with $V_1 \le V_2$:
+
+              $\tilde F V_1 \le \tilde F V_2$.
+        \item $\tilde F$ ``sub commutes" with $d^{[0,T]}$:
+
+              For any $t \in F([0,T]_\R^2)$:
+
+              $d^{[0,T]_\R} (\tilde F \pi_1(t), \tilde F \pi_2(t)) \le \tilde F d^{[0,T]_\R}(t)$, i.e.
+
+              $| \eval \circ (F \pi_1) (t) - \eval \circ  (F \pi_2)(t)| \le \eval \circ (F d^{[0,T]_\R})(t)$, i.e.
+
+              $| \eval(t_1) - \eval (t_2)| \le \eval \circ (F d^{[0,T]_\R})(t)$
+
+        \item Exactly the elements $F\{0\}$ are mapped to $0$ by $\eval$.
+
+              $\eval^{-1}[\{0\}] = Fi [F\{0\}]$, where $(i : \{0\} \xhookrightarrow{}[0,T]_\R ) = 0 $
+
+    \end{enumerate}
+
+\end{defB}
+
+\begin{resB}{Well behaved $\eval \implies $ pseudometric}
+    If $\eval$ is well beahved, then the lifting is a pseudometric.
+\end{resB}
 
 \begin{expb}{Not nice metric for functor}
     Consider the functor $F : X \to A \times X$. Suppose you wanted to find the wasserstein metric.
@@ -1809,6 +1869,9 @@ Note that also any pseudometric space $(X,d^X)$ can be thought of as an object i
     To fix this issue, we will introduce multifunctors, and lifting pseudometrics of mutlifunctors.
 
 \end{expb}
+
+
+
 
 
 
